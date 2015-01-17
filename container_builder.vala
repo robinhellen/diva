@@ -8,7 +8,7 @@ namespace Diva
 
         public IRegistrationContext<T> Register<T>(owned ResolveFunc<T> resolver)
         {
-            var registration = new DelegateRegistrationContext<T>(resolver);
+            var registration = new DelegateRegistrationContext<T>((owned) resolver);
             registrations.add(registration);
             return registration;
         }
@@ -43,9 +43,9 @@ namespace Diva
     {
         private ResolveFunc<T> resolveFunc;
 
-        public DelegateRegistrationContext(ResolveFunc<T> resolver)
+        public DelegateRegistrationContext(owned ResolveFunc<T> resolver)
         {
-            resolveFunc = resolver;
+            resolveFunc = (owned) resolver;
         }
 
         public ICreator<T> GetCreator()
