@@ -21,6 +21,7 @@ namespace Ldraw.Tests
         {
             base("SimpleTest");
             add_test("SimpleResolve", SimpleResolve);
+            add_test("ResolveTypeAuto", ResolveTypeAuto);
         }
 
         private void SimpleResolve()
