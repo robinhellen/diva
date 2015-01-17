@@ -39,7 +39,7 @@ namespace Diva
         public abstract T Create(ComponentContext context);
     }
 
-    public class DelegateRegistrationContext<T> : IRegistrationContext<T>, Object
+    internal class DelegateRegistrationContext<T> : IRegistrationContext<T>, Object
     {
         private ResolveFunc<T> resolveFunc;
 
@@ -69,7 +69,7 @@ namespace Diva
         }
     }
 
-    public class DefaultContainer : IContainer, ComponentContext, Object
+    internal class DefaultContainer : IContainer, ComponentContext, Object
     {
         private Map<Type, ICreator> services;
 
