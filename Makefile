@@ -7,9 +7,10 @@ TEST_EXECUTABLE_NAME = diva_test
 LIBRARY_NAME = diva
 
 all: $(LIBRARY_NAME).so $(TEST_EXECUTABLE_NAME)
+	./$(TEST_EXECUTABLE_NAME)
 
 $(LIBRARY_NAME).so: $(LIBRARY_SOURCES)
-	valac-0.24 --pkg=gee-0.8 --library=$(LIBRARY_NAME) -H $(LIBRARY_NAME).h $(LIBRARY_SOURCES) -X -fpic -X -shared -g -o $(LIBRARY_NAME).so
+	valac-0.24 --pkg=gee-0.8 --library=$(LIBRARY_NAME) -H $(LIBRARY_NAME).h $(LIBRARY_SOURCES) -X -fpic -X -shared -g -o $(LIBRARY_NAME).so -X -w
 
 $(TEST_EXECUTABLE_NAME): $(LIBRARY_NAME).so $(TEST_SOURCES)
-	valac-0.24 --pkg=$(LIBRARY_NAME) --vapidir=. -X ./$(LIBRARY_NAME).so -X -I. -g $(TEST_SOURCES)
+	valac-0.24 --pkg=gee-0.8 --pkg=$(LIBRARY_NAME) --vapidir=. -X ./$(LIBRARY_NAME).so -X -I. -g $(TEST_SOURCES) -X -w -o $(TEST_EXECUTABLE_NAME)

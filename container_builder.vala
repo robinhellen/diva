@@ -15,7 +15,13 @@ namespace Diva
 
         public IContainer Build()
         {
-            return new DefaultContainer();
+            var services = new HashMap<Type, ICreator>();
+            foreach(var registration in registrations)
+            {
+                services[registration.Type] = registration.GetCreator();
+            }
+
+            return new DefaultContainer(services);
         }
     }
 
@@ -28,19 +34,55 @@ namespace Diva
         public abstract T Resolve<T>();
     }
 
+    public interface ICreator<T> : Object
+    {
+        public abstract T Create(ComponentContext context);
+    }
+
     public class DelegateRegistrationContext<T> : IRegistrationContext<T>, Object
     {
+        private ResolveFunc<T> resolveFunc;
+
         public DelegateRegistrationContext(ResolveFunc<T> resolver)
         {
+            resolveFunc = resolver;
+        }
 
+        public ICreator<T> GetCreator()
+        {
+            return new DelegateCreator<T>(this);
+        }
+
+        private class DelegateCreator<T> : ICreator<T>, Object
+        {
+            private DelegateRegistrationContext<T> registration;
+
+            public DelegateCreator(DelegateRegistrationContext<T> registration)
+            {
+                this.registration = registration;
+            }
+
+            public T Create(ComponentContext context)
+            {
+                return registration.resolveFunc(context);
+            }
         }
     }
 
-    public class DefaultContainer : IContainer, Object
+    public class DefaultContainer : IContainer, ComponentContext, Object
     {
+        private Map<Type, ICreator> services;
+
+        public DefaultContainer(Map<Type, ICreator> services)
+        {
+            this.services = services;
+        }
+
         public T Resolve<T>()
         {
-            return null;
+            var creator = services[typeof(T)];
+            ICreator<T> realCreator = creator;
+            return realCreator.Create(this);
         }
     }
 }
