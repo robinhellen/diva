@@ -34,6 +34,18 @@ namespace Ldraw.Tests
                 fail();
         }
 
+        private void ResolveTypeAuto()
+        {
+            var builder = new ContainerBuilder();
+            builder.Register<TestClass>();
+
+            var container = builder.Build();
+            var testClass = container.Resolve<TestClass>();
+            if(testClass == null)
+                fail();
+
+        }
+
         private class TestClass : Object {}
     }
 }
