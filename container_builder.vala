@@ -6,8 +6,15 @@ namespace Diva
     {
         private Gee.List<IRegistrationContext> registrations = new LinkedList<IRegistrationContext>();
 
-        public IRegistrationContext<T> Register<T>(owned ResolveFunc<T> resolver)
+        public IRegistrationContext<T> Register<T>(owned ResolveFunc<T>? resolver = null)
         {
+            if(resolver == null)
+            {
+                var registration = new AutoTypeRegistration<T>();
+                registrations.add(registration);
+                return registration;
+            }
+
             var registration = new DelegateRegistrationContext<T>((owned) resolver);
             registrations.add(registration);
             return registration;
