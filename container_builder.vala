@@ -34,7 +34,10 @@ namespace Diva
 
     public delegate T ResolveFunc<T>(ComponentContext context);
 
-    public interface ComponentContext : Object {}
+    public interface ComponentContext : Object
+    {
+        internal abstract Object ResolveTyped(Type t);
+    }
 
     public interface IContainer : Object
     {
@@ -89,6 +92,13 @@ namespace Diva
         {
             var creator = services[typeof(T)];
             ICreator<T> realCreator = creator;
+            return realCreator.Create(this);
+        }
+
+        internal Object ResolveTyped(Type t)
+        {
+            var creator = services[t];
+            ICreator<Object> realCreator = creator;
             return realCreator.Create(this);
         }
     }

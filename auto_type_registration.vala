@@ -18,7 +18,32 @@ namespace Diva
 
             public T Create(ComponentContext context)
             {
-                return (T) Object.new(typeof(T));
+                var cls = typeof(T).class_ref();
+                var properties = ((ObjectClass)cls).list_properties();
+                var params = new Parameter[] {};
+                foreach(var prop in properties)
+                {
+                    if(CanInjectProperty(prop))
+                    {
+                        var p = Parameter();
+                        var t = prop.value_type;
+                        p.name = prop.name;
+
+                        p.value = Value(t);
+                        p.value.set_object(context.ResolveTyped(t));
+
+                        params += p;
+
+                    }
+                }
+                return (T) Object.newv(typeof(T), params);
+            }
+
+            private bool CanInjectProperty(ParamSpec p)
+            {
+                var flags = p.flags;
+                return (  ((flags & ParamFlags.CONSTRUCT) == ParamFlags.CONSTRUCT)
+                  || ((flags & ParamFlags.CONSTRUCT_ONLY) == ParamFlags.CONSTRUCT_ONLY));
             }
         }
     }
