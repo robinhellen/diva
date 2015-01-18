@@ -23,6 +23,7 @@ namespace Ldraw.Tests
             add_test("SimpleResolve", SimpleResolve);
             add_test("ResolveTypeAuto", ResolveTypeAuto);
             add_test("ResolveTypeWithDependency", ResolveTypeWithDependency);
+            add_test("ResolveByInterface", ResolveByInterface);
         }
 
         private void SimpleResolve()
@@ -63,11 +64,25 @@ namespace Ldraw.Tests
 
         }
 
-        private class TestClass : Object {}
+        private void ResolveByInterface()
+        {
+            var builder = new ContainerBuilder();
+            builder.Register<TestClass>().As<TestInterface>();
+
+            var container = builder.Build();
+            var testInterface = container.Resolve<TestInterface>();
+            if(testInterface == null)
+                fail();
+        }
+
+
+        private class TestClass : Object, TestInterface {}
 
         private class TestClassWithDependencies : Object
         {
             public TestClass Dependency {get; construct;}
         }
     }
+
+    private interface TestInterface : Object {}
 }
