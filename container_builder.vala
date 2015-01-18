@@ -25,7 +25,12 @@ namespace Diva
             var services = new HashMap<Type, ICreator>();
             foreach(var registration in registrations)
             {
-                services[registration.Type] = registration.GetCreator();
+                var creator = registration.GetCreator();
+                services[registration.Type] = creator;
+                foreach(var service in registration.services)
+                {
+                    services[service] = creator;
+                }
             }
 
             return new DefaultContainer(services);
@@ -52,11 +57,14 @@ namespace Diva
     internal class DelegateRegistrationContext<T> : IRegistrationContext<T>, Object
     {
         private ResolveFunc<T> resolveFunc;
+        private Collection<Type> _services = new LinkedList<Type>();
 
         public DelegateRegistrationContext(owned ResolveFunc<T> resolver)
         {
             resolveFunc = (owned) resolver;
         }
+
+        internal Collection<Type> services {get{return _services;}}
 
         public ICreator<T> GetCreator()
         {

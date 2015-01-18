@@ -1,3 +1,5 @@
+using Gee;
+
 namespace Diva
 {
     [GenericAccessors]
@@ -5,6 +7,13 @@ namespace Diva
     {
         public abstract ICreator GetCreator();
         public Type Type {get {return typeof(T);}}
-        public abstract IRegistrationContext<T> As<TInterface>();
+
+        internal abstract Collection<Type> services {get;}
+
+        public IRegistrationContext<T> As<TInterface>()
+        {
+            services.add(typeof(TInterface));
+            return this;
+        }
     }
 }

@@ -1,7 +1,13 @@
+using Gee;
+
 namespace Diva
 {
     internal class AutoTypeRegistration<T> : Object, IRegistrationContext<T>
     {
+        private Collection<Type> _services = new LinkedList<Type>();
+
+        internal Collection<Type> services {get{return _services;}}
+
         public ICreator<T> GetCreator()
         {
             return new AutoTypeCreator<T>(this);
