@@ -37,21 +37,25 @@ namespace Diva
         }
     }
 
-    public delegate T ResolveFunc<T>(ComponentContext context);
+    public delegate T ResolveFunc<T>(ComponentContext context)
+            throws ResolveError;
 
     public interface ComponentContext : Object
     {
-        internal abstract Object ResolveTyped(Type t);
+        internal abstract Object ResolveTyped(Type t)
+            throws ResolveError;
     }
 
     public interface IContainer : Object
     {
-        public abstract T Resolve<T>();
+        public abstract T Resolve<T>()
+            throws ResolveError;
     }
 
     public interface ICreator<T> : Object
     {
-        public abstract T Create(ComponentContext context);
+        public abstract T Create(ComponentContext context)
+            throws ResolveError;
     }
 
     internal class DelegateRegistrationContext<T> : IRegistrationContext<T>, Object
@@ -81,8 +85,16 @@ namespace Diva
             }
 
             public T Create(ComponentContext context)
+                throws ResolveError
             {
-                return registration.resolveFunc(context);
+                try
+                {
+                    return registration.resolveFunc(context);
+                }
+                catch(ResolveError e)
+                {
+                    throw new ResolveError.InnerError(@"Unable to create $(typeof(T).name()): $(e.message)");
+                }
             }
         }
     }
@@ -97,15 +109,22 @@ namespace Diva
         }
 
         public T Resolve<T>()
+            throws ResolveError
         {
-            var creator = services[typeof(T)];
+            var t = typeof(T);
+            var creator = services[t];
+            if(creator == null)
+                throw new ResolveError.UnknownService(@"No component has been registered providing the service $(t.name()).");
             ICreator<T> realCreator = creator;
             return realCreator.Create(this);
         }
 
         internal Object ResolveTyped(Type t)
+            throws ResolveError
         {
             var creator = services[t];
+            if(creator == null)
+                throw new ResolveError.UnknownService(@"No component has been registered providing the service $(t.name()).");
             ICreator<Object> realCreator = creator;
             return realCreator.Create(this);
         }

@@ -32,9 +32,11 @@ namespace Ldraw.Tests
             builder.Register<TestClass>(_ => new TestClass());
 
             var container = builder.Build();
+            try {
             var testClass = container.Resolve<TestClass>();
             if(testClass == null)
                 fail();
+            } catch (ResolveError e) {Test.message(@"ResolveError: $(e.message)"); fail(); }
         }
 
         private void ResolveTypeAuto()
@@ -43,10 +45,11 @@ namespace Ldraw.Tests
             builder.Register<TestClass>();
 
             var container = builder.Build();
+            try {
             var testClass = container.Resolve<TestClass>();
             if(testClass == null)
                 fail();
-
+            } catch (ResolveError e) {Test.message(@"ResolveError: $(e.message)"); fail(); }
         }
 
         private void ResolveTypeWithDependency()
@@ -56,12 +59,13 @@ namespace Ldraw.Tests
             builder.Register<TestClassWithDependencies>();
 
             var container = builder.Build();
+            try {
             var testClassWithDependencies = container.Resolve<TestClassWithDependencies>();
             if(testClassWithDependencies == null)
                 fail();
             if(testClassWithDependencies.Dependency == null)
                 fail();
-
+            } catch (ResolveError e) {Test.message(@"ResolveError: $(e.message)"); fail(); }
         }
 
         private void ResolveByInterface()
@@ -70,9 +74,11 @@ namespace Ldraw.Tests
             builder.Register<TestClass>().As<TestInterface>();
 
             var container = builder.Build();
+            try {
             var testInterface = container.Resolve<TestInterface>();
             if(testInterface == null)
                 fail();
+            } catch (ResolveError e) {Test.message(@"ResolveError: $(e.message)"); fail(); }
         }
 
 

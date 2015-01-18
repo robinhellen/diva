@@ -23,6 +23,7 @@ namespace Diva
             }
 
             public T Create(ComponentContext context)
+                throws ResolveError
             {
                 var cls = typeof(T).class_ref();
                 var properties = ((ObjectClass)cls).list_properties();
@@ -36,7 +37,14 @@ namespace Diva
                         p.name = prop.name;
 
                         p.value = Value(t);
-                        p.value.set_object(context.ResolveTyped(t));
+                        try
+                        {
+                            p.value.set_object(context.ResolveTyped(t));
+                        }
+                        catch(ResolveError e)
+                        {
+                            throw new ResolveError.InnerError(@"Cannot satify parameter $(prop.name) [$(t.name())]: $(e.message)");
+                        }
 
                         params += p;
 
