@@ -10,6 +10,7 @@ namespace Diva.Tests
         var rootSuite = TestSuite.get_root();
 
         rootSuite.add_suite(new SimpleTest().get_suite());
+        rootSuite.add_suite(new CreationStrategyTests().get_suite());
 
         Test.run();
         return 0;
