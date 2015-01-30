@@ -11,6 +11,7 @@ namespace Diva.Tests
             base("CreationStrategyTests");
 
             add_test("PerDependencyDefault", PerDependencyDefault);
+            add_test("SingleInstance", SingleInstance);
         }
 
         private void PerDependencyDefault()
@@ -26,6 +27,23 @@ namespace Diva.Tests
 
 
                 if(InstantiationCounter.InstantiationCount != 2)
+                    fail();
+            } catch (ResolveError e) {Test.message(@"ResolveError: $(e.message)"); fail(); }
+        }
+
+        private void SingleInstance()
+        {
+            InstantiationCounter.ResetCount();
+
+            var builder = new ContainerBuilder();
+            builder.Register<InstantiationCounter>().SingleInstance();
+            var container = builder.Build();
+            try {
+                var counter = container.Resolve<InstantiationCounter>();
+                counter = container.Resolve<InstantiationCounter>();
+
+
+                if(InstantiationCounter.InstantiationCount != 1)
                     fail();
             } catch (ResolveError e) {Test.message(@"ResolveError: $(e.message)"); fail(); }
         }

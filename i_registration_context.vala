@@ -1,4 +1,4 @@
-using Gee;
+ using Gee;
 
 namespace Diva
 {
@@ -13,6 +13,11 @@ namespace Diva
         public IRegistrationContext<T> As<TInterface>()
         {
             services.add(typeof(TInterface));
+            return this;
+        }
+
+        public IRegistrationContext<T> SingleInstance()
+        {
             return this;
         }
     }
