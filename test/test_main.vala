@@ -2,7 +2,7 @@ using GLib.Test;
 
 using Diva;
 
-namespace Ldraw.Tests
+namespace Diva.Tests
 {
     static int main(string[] args)
     {

@@ -1,6 +1,6 @@
 using GLib.Test;
 
-namespace Ldraw.Tests
+namespace Diva.Tests
 {
     public abstract class TestFixture : Object
     {
