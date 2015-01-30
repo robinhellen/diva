@@ -62,6 +62,7 @@ namespace Diva
     {
         private ResolveFunc<T> resolveFunc;
         private Collection<Type> _services = new LinkedList<Type>();
+        internal CreationStrategy creation_strategy {get; set;}
 
         public DelegateRegistrationContext(owned ResolveFunc<T> resolver)
         {
@@ -72,7 +73,7 @@ namespace Diva
 
         public ICreator<T> GetCreator()
         {
-            return new DelegateCreator<T>(this);
+            return creation_strategy.GetFinalCreator<T>(new DelegateCreator<T>(this));
         }
 
         private class DelegateCreator<T> : ICreator<T>, Object

@@ -7,10 +7,11 @@ namespace Diva
         private Collection<Type> _services = new LinkedList<Type>();
 
         internal Collection<Type> services {get{return _services;}}
+        internal CreationStrategy creation_strategy {get; set;}
 
         public ICreator<T> GetCreator()
         {
-            return new AutoTypeCreator<T>(this);
+            return creation_strategy.GetFinalCreator<T>(new AutoTypeCreator<T>(this));
         }
 
         private class AutoTypeCreator<T> : Object, ICreator<T>

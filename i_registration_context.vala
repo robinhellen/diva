@@ -9,6 +9,7 @@ namespace Diva
         public Type Type {get {return typeof(T);}}
 
         internal abstract Collection<Type> services {get;}
+        internal abstract CreationStrategy creation_strategy {get; set;}
 
         public IRegistrationContext<T> As<TInterface>()
         {
@@ -18,6 +19,7 @@ namespace Diva
 
         public IRegistrationContext<T> SingleInstance()
         {
+            creation_strategy = CreationStrategy.SingleInstance;
             return this;
         }
     }
