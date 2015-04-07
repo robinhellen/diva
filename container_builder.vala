@@ -50,6 +50,9 @@ namespace Diva
     {
         public abstract T Resolve<T>()
             throws ResolveError;
+            
+        public abstract Lazy<T> ResolveLazy<T>()
+            throws ResolveError;
     }
 
     public interface ICreator<T> : Object
@@ -118,6 +121,18 @@ namespace Diva
                 throw new ResolveError.UnknownService(@"No component has been registered providing the service $(t.name()).");
             ICreator<T> realCreator = creator;
             return realCreator.Create(this);
+        }
+        
+        public Lazy<T> ResolveLazy<T>()
+            throws ResolveError
+        {
+            var t = typeof(T);
+            var creator = services[t];
+            if(creator == null)
+                throw new ResolveError.UnknownService(@"No component has been registered providing the service $(t.name()).");
+            ICreator<T> realCreator = creator;
+            
+            return new Lazy<T>(() => { return realCreator.Create(this); });
         }
 
         internal Object ResolveTyped(Type t)
