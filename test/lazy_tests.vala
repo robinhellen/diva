@@ -12,6 +12,7 @@ namespace Diva.Tests
             base("LazyTests");
 
             add_test("ResolveDirectly", ResolveDirectly);
+            add_test("ResolveAsComponent", ResolveAsComponent);
         }
 
         private void ResolveDirectly()
@@ -41,6 +42,35 @@ namespace Diva.Tests
             } catch (ResolveError e) {Test.message(@"ResolveError: $(e.message)"); fail(); }
         }
 
+        private void ResolveAsComponent()
+        {
+            InstantiationCounter.ResetCount();
+
+            var builder = new ContainerBuilder();
+            builder.Register<RequiresLazy>();
+            builder.Register<InstantiationCounter>();
+            var container = builder.Build();
+             
+            try {
+                var resolved = container.Resolve<RequiresLazy>();
+            
+                if(InstantiationCounter.InstantiationCount != 0)
+                {
+                    Test.message(@"Should not have created the object yet. $(InstantiationCounter.InstantiationCount).");
+                    fail();
+                }
+                
+                resolved.UseLazy();
+                
+                if(InstantiationCounter.InstantiationCount != 1)
+                {
+                    Test.message(@"Should have created the counter once, actually: $(InstantiationCounter.InstantiationCount).");
+                    fail();
+                }
+
+            } catch (ResolveError e) {Test.message(@"ResolveError: $(e.message)"); fail(); }
+        }       
+
         private class InstantiationCounter : Object
         {
             public static int InstantiationCount = 0;
@@ -48,6 +78,17 @@ namespace Diva.Tests
             public static void ResetCount() {InstantiationCount = 0;}
 
             construct {InstantiationCount++;}
+        }
+        
+        private class RequiresLazy : Object
+        {
+            public Lazy<InstantiationCounter> Lazy {construct; private get;}
+            
+            public void UseLazy()
+            {
+                var c = Lazy.value;
+                c = Lazy.value;
+            }
         }
     }
 }
