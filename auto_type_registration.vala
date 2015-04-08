@@ -38,9 +38,14 @@ namespace Diva
                         p.name = prop.name;
 
                         p.value = Value(t);
+                        
                         try
                         {
-                            p.value.set_object(context.ResolveTyped(t));
+                            CreatorFunc func;
+                            if(IsSpecial(t, out func))
+                                func(prop, context, ref p);
+                            else
+                                p.value.set_object(context.ResolveTyped(t));
                         }
                         catch(ResolveError e)
                         {
@@ -53,12 +58,44 @@ namespace Diva
                 }
                 return (T) Object.newv(typeof(T), params);
             }
+            
+            public Lazy<T> CreateLazy(ComponentContext context)
+            {
+                return new Lazy<T>(() => { return Create(context); });
+            }
 
             private bool CanInjectProperty(ParamSpec p)
             {
                 var flags = p.flags;
                 return (  ((flags & ParamFlags.CONSTRUCT) == ParamFlags.CONSTRUCT)
                   || ((flags & ParamFlags.CONSTRUCT_ONLY) == ParamFlags.CONSTRUCT_ONLY));
+            }
+            
+            private bool IsSpecial(Type t, out CreatorFunc func)
+            {
+                if(t == typeof(Lazy))
+                {
+                    func = LazyCreator;
+                    return true;
+                }
+                func = null;
+                return false;
+            }
+            
+            private delegate void CreatorFunc(ParamSpec p, ComponentContext context, ref Parameter param)
+                throws ResolveError;
+            
+            private void LazyCreator(ParamSpec p, ComponentContext context, ref Parameter param)
+                throws ResolveError
+            {
+                // get the type                
+                var lazyData = (LazyPropertyData)p.get_qdata(LazyPropertyData.Q);
+                if(lazyData == null)
+                    throw new ResolveError.BadDeclaration("To support injection of lazy properties, call SetLazyInjection in your static construct block.");
+                Type t = lazyData.DepType;
+            
+                
+                param.value.set_instance(context.ResolveLazyTyped(t));
             }
         }
     }

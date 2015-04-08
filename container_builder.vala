@@ -44,6 +44,9 @@ namespace Diva
     {
         internal abstract Object ResolveTyped(Type t)
             throws ResolveError;
+            
+        internal abstract Lazy ResolveLazyTyped(Type t)
+            throws ResolveError;
     }
 
     public interface IContainer : Object
@@ -58,6 +61,9 @@ namespace Diva
     public interface ICreator<T> : Object
     {
         public abstract T Create(ComponentContext context)
+            throws ResolveError;
+            
+        public abstract Lazy<T> CreateLazy(ComponentContext context)
             throws ResolveError;
     }
 
@@ -100,6 +106,12 @@ namespace Diva
                     throw new ResolveError.InnerError(@"Unable to create $(typeof(T).name()): $(e.message)");
                 }
             }
+            
+            public Lazy<T> CreateLazy(ComponentContext context)
+                throws ResolveError
+            {
+                return new Lazy<T>(() => {return Create(context);});
+            }
         }
     }
 
@@ -131,8 +143,7 @@ namespace Diva
             if(creator == null)
                 throw new ResolveError.UnknownService(@"No component has been registered providing the service $(t.name()).");
             ICreator<T> realCreator = creator;
-            
-            return new Lazy<T>(() => { return realCreator.Create(this); });
+            return realCreator.CreateLazy(this);
         }
 
         internal Object ResolveTyped(Type t)
@@ -143,6 +154,17 @@ namespace Diva
                 throw new ResolveError.UnknownService(@"No component has been registered providing the service $(t.name()).");
             ICreator<Object> realCreator = creator;
             return realCreator.Create(this);
+        }
+
+        internal Lazy ResolveLazyTyped(Type t)
+            throws ResolveError
+        {
+            var creator = services[t];
+            if(creator == null)
+                throw new ResolveError.UnknownService(@"No component has been registered providing the service $(t.name()).");
+            ICreator<Object> realCreator = creator;
+            
+            return realCreator.CreateLazy(this);
         }
     }
 }
