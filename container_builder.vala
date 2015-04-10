@@ -59,6 +59,9 @@ namespace Diva
             
         internal abstract Lazy ResolveLazyTyped(Type t)
             throws ResolveError;
+            
+        internal abstract Index ResolveIndexTyped(Type tService, Type tKey)
+            throws ResolveError;
     }
 
     public interface IContainer : Object
@@ -209,6 +212,19 @@ namespace Diva
             ICreator<Object> realCreator = creator;
             
             return realCreator.CreateLazy(this);
+        }
+        
+        internal Index ResolveIndexTyped(Type tService, Type tKey)
+        {
+            var keysForService = keyedServices[tService];
+            
+            var index = (CreatorTypedIndex)Object.new(typeof(CreatorTypedIndex),
+                tkey_type: tKey,
+                tservice_type: tService,
+                context: this,
+                keysForService: keysForService
+            );
+            return index;
         }
     }
 }

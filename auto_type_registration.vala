@@ -78,6 +78,11 @@ namespace Diva
                     func = LazyCreator;
                     return true;
                 }
+                if(t == typeof(Index))
+                {
+                    func = IndexCreator;
+                    return true;
+                }
                 func = null;
                 return false;
             }
@@ -96,6 +101,16 @@ namespace Diva
             
                 
                 param.value.set_instance(context.ResolveLazyTyped(t));
+            }
+            
+            private void IndexCreator(ParamSpec p, ComponentContext context, ref Parameter param)
+                throws ResolveError
+            {
+                var indexData = (IndexPropertyData)p.get_qdata(IndexPropertyData.Q);
+                if(indexData == null)
+                     throw new ResolveError.BadDeclaration("To support injection of index properties, call SetIndexedInjection in your static construct block.");
+                
+                param.value.set_instance(context.ResolveIndexTyped(indexData.Dependency, indexData.Key));
             }
         }
     }
