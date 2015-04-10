@@ -4,9 +4,9 @@ namespace Diva
 {
     internal class AutoTypeRegistration<T> : Object, IRegistrationContext<T>
     {
-        private Collection<Type> _services = new LinkedList<Type>();
+        private Collection<ServiceRegistration> _services = new LinkedList<ServiceRegistration>();
 
-        internal Collection<Type> services {get{return _services;}}
+        internal Collection<ServiceRegistration> services {get{return _services;}}
         internal CreationStrategy creation_strategy {get; set;}
 
         public ICreator<T> GetCreator()

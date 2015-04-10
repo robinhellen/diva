@@ -23,17 +23,29 @@ namespace Diva
         public IContainer Build()
         {
             var services = new HashMap<Type, ICreator>();
+            var keyedServices = new HashMap<Type, Map<Value?, ICreator>>();
             foreach(var registration in registrations)
             {
                 var creator = registration.GetCreator();
                 services[registration.Type] = creator;
                 foreach(var service in registration.services)
                 {
-                    services[service] = creator;
+                    services[service.ServiceType] = creator;
+                    if(service.Keys != null)
+                    foreach(var key in service.Keys)
+                    {
+                        var s = keyedServices[service.ServiceType];
+                        if(s == null)
+                        {
+                            s = new HashMap<Value?, ICreator>();
+                            keyedServices[service.ServiceType] = s;
+                        }
+                        s[key] = creator;
+                    }
                 }
             }
 
-            return new DefaultContainer(services);
+            return new DefaultContainer(services, keyedServices);
         }
     }
 
@@ -56,6 +68,9 @@ namespace Diva
             
         public abstract Lazy<T> ResolveLazy<T>()
             throws ResolveError;
+            
+        public abstract Index<TService, TKey> ResolveIndexed<TService, TKey>()
+            throws ResolveError;
     }
 
     public interface ICreator<T> : Object
@@ -70,7 +85,7 @@ namespace Diva
     internal class DelegateRegistrationContext<T> : IRegistrationContext<T>, Object
     {
         private ResolveFunc<T> resolveFunc;
-        private Collection<Type> _services = new LinkedList<Type>();
+        private Collection<ServiceRegistration> _services = new LinkedList<ServiceRegistration>();
         internal CreationStrategy creation_strategy {get; set;}
 
         public DelegateRegistrationContext(owned ResolveFunc<T> resolver)
@@ -78,7 +93,7 @@ namespace Diva
             resolveFunc = (owned) resolver;
         }
 
-        internal Collection<Type> services {get{return _services;}}
+        internal Collection<ServiceRegistration> services {get{return _services;}}
 
         public ICreator<T> GetCreator()
         {
@@ -118,10 +133,12 @@ namespace Diva
     internal class DefaultContainer : IContainer, ComponentContext, Object
     {
         private Map<Type, ICreator> services;
-
-        public DefaultContainer(Map<Type, ICreator> services)
+        private Map<Type, Map<Value?, ICreator>> keyedServices;
+        
+        public DefaultContainer(Map<Type, ICreator> services, Map<Type, Map<Value?, ICreator>> keyedServices)
         {
             this.services = services;
+            this.keyedServices = keyedServices;
         }
 
         public T Resolve<T>()
@@ -145,6 +162,33 @@ namespace Diva
             ICreator<T> realCreator = creator;
             return realCreator.CreateLazy(this);
         }
+        
+        public Index<TService, TKey> ResolveIndexed<TService, TKey>()
+        {
+            var t = typeof(TService);
+            var tkey = typeof(TKey);
+            var keysForService = keyedServices[t];
+            var keyedCreators = new HashMap<TKey, ICreator<TService>>();
+            
+            foreach(var v in keysForService.entries)
+            {
+                if(v.key.type() != tkey)
+                    continue;
+                keyedCreators[ExtractKey<TKey>(v.key)] = v.value;
+            }
+            return new CreatorIndex<TService, TKey>(keyedCreators, this);
+        }
+        
+		private T ExtractKey<T>(Value v)
+		{
+			var valueType = v.type();
+			if(valueType.is_enum())
+			{
+				var key = (T)v.get_enum();
+				return key;
+			}
+			return (T)v.get_pointer;
+		}
 
         internal Object ResolveTyped(Type t)
             throws ResolveError
