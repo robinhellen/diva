@@ -8,24 +8,28 @@ namespace Diva
 
         internal Collection<ServiceRegistration> services {get{return _services;}}
         internal CreationStrategy creation_strategy {get; set;}
+        private Collection<string> ignoredProperties = new ArrayList<string>();
 
         public ICreator<T> GetCreator()
         {
-            return creation_strategy.GetFinalCreator<T>(new AutoTypeCreator<T>(this));
+            return creation_strategy.GetFinalCreator<T>(new AutoTypeCreator<T>(this, ignoredProperties));
         }
         
         public IRegistrationContext<T> IgnoreProperty(string property)
         {
+            ignoredProperties.add(property);
             return this;
         }
 
         private class AutoTypeCreator<T> : Object, ICreator<T>
         {
             private AutoTypeRegistration<T> registration;
+            private Collection<string> ignoredProperties;
 
-            public AutoTypeCreator(AutoTypeRegistration<T> registration)
+            public AutoTypeCreator(AutoTypeRegistration<T> registration, Collection<string> ignoredProperties)
             {
                 this.registration = registration;
+                this.ignoredProperties = ignoredProperties;
             }
 
             public T Create(ComponentContext context)
@@ -36,6 +40,8 @@ namespace Diva
                 var params = new Parameter[] {};
                 foreach(var prop in properties)
                 {
+                    if(ignoredProperties.contains(prop.name))
+                        continue;
                     if(CanInjectProperty(prop))
                     {
                         var p = Parameter();
