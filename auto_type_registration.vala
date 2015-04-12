@@ -13,6 +13,11 @@ namespace Diva
         {
             return creation_strategy.GetFinalCreator<T>(new AutoTypeCreator<T>(this));
         }
+        
+        public IRegistrationContext<T> IgnoreProperty(string property)
+        {
+            return this;
+        }
 
         private class AutoTypeCreator<T> : Object, ICreator<T>
         {

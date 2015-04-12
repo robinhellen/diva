@@ -35,6 +35,8 @@ namespace Diva
             return this;
         }
         
+        public abstract IRegistrationContext<T> IgnoreProperty(string property);
+        
         private void AddServiceRegistration(Type service, Value? key = null)
         {
             var existingRegs = services.filter(s => s.ServiceType == service).chop(0, 1);

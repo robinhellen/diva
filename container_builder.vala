@@ -102,6 +102,11 @@ namespace Diva
         {
             return creation_strategy.GetFinalCreator<T>(new DelegateCreator<T>(this));
         }
+        
+        public IRegistrationContext<T> IgnoreProperty(string property)
+        {
+            return this;
+        }
 
         private class DelegateCreator<T> : ICreator<T>, Object
         {
