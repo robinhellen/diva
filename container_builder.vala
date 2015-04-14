@@ -143,6 +143,8 @@ namespace Diva
         private Map<Type, ICreator> services;
         private Map<Type, Map<Value?, ICreator>> keyedServices;
         
+        private Deque<Type> currentCreations = new LinkedList<Type>();
+        
         public DefaultContainer(Map<Type, ICreator> services, Map<Type, Map<Value?, ICreator>> keyedServices)
         {
             this.services = services;
@@ -153,27 +155,34 @@ namespace Diva
             throws ResolveError
         {
             var t = typeof(T);
+            CheckForLoop(t);
             var creator = services[t];
             if(creator == null)
                 throw new ResolveError.UnknownService(@"No component has been registered providing the service $(t.name()).");
             ICreator<T> realCreator = creator;
-            return realCreator.Create(this);
+            var o = realCreator.Create(this);
+            FinishedCreating(t);
+            return o;
         }
         
         public Lazy<T> ResolveLazy<T>()
             throws ResolveError
         {
             var t = typeof(T);
+            CheckForLoop(t);
             var creator = services[t];
             if(creator == null)
                 throw new ResolveError.UnknownService(@"No component has been registered providing the service $(t.name()).");
             ICreator<T> realCreator = creator;
-            return realCreator.CreateLazy(this);
+            var o = realCreator.CreateLazy(this);
+            FinishedCreating(t);
+            return o;
         }
         
         public Index<TService, TKey> ResolveIndexed<TService, TKey>()
         {
             var t = typeof(TService);
+            CheckForLoop(t);
             var tkey = typeof(TKey);
             var keysForService = keyedServices[t];
             var keyedCreators = new HashMap<TKey, ICreator<TService>>();
@@ -184,7 +193,9 @@ namespace Diva
                     continue;
                 keyedCreators[ExtractKey<TKey>(v.key)] = v.value;
             }
-            return new CreatorIndex<TService, TKey>(keyedCreators, this);
+            var index = new CreatorIndex<TService, TKey>(keyedCreators, this);
+            FinishedCreating(t);
+            return index;
         }
         
 		private T ExtractKey<T>(Value v)
@@ -201,26 +212,34 @@ namespace Diva
         internal Object ResolveTyped(Type t)
             throws ResolveError
         {
+            CheckForLoop(t);
             var creator = services[t];
             if(creator == null)
                 throw new ResolveError.UnknownService(@"No component has been registered providing the service $(t.name()).");
             ICreator<Object> realCreator = creator;
-            return realCreator.Create(this);
+            var o = realCreator.Create(this);
+            FinishedCreating(t);
+            return o;
         }
 
         internal Lazy ResolveLazyTyped(Type t)
             throws ResolveError
         {
+            CheckForLoop(t);
             var creator = services[t];
             if(creator == null)
                 throw new ResolveError.UnknownService(@"No component has been registered providing the service $(t.name()).");
             ICreator<Object> realCreator = creator;
             
-            return realCreator.CreateLazy(this);
+            var o = realCreator.CreateLazy(this);
+            FinishedCreating(t);
+            return o;
         }
         
         internal Index ResolveIndexTyped(Type tService, Type tKey)
+            throws ResolveError
         {
+            CheckForLoop(tService);
             var keysForService = keyedServices[tService];
             
             var index = (CreatorTypedIndex)Object.new(typeof(CreatorTypedIndex),
@@ -229,7 +248,24 @@ namespace Diva
                 context: this,
                 keysForService: keysForService
             );
+            FinishedCreating(tService);
             return index;
+        }
+        
+        private void CheckForLoop(Type t)
+            throws ResolveError
+        {
+            if(currentCreations.contains(t))
+                throw new ResolveError.CyclicDependencies("Whee!! - I'm in a loop.");
+            
+            currentCreations.offer_head(t);
+        }
+        
+        private void FinishedCreating(Type t)
+        {
+            var head = currentCreations.poll_head();
+            if(head != t)
+                assert_not_reached();
         }
     }
 }
