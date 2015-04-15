@@ -25,11 +25,11 @@ namespace Diva.Tests
                 var testClass = container.Resolve<TestInterface>();
                 var decorator = testClass as TestDecorator;
                 if(decorator == null)
-                    fail();
+                    {fail(); return;}
                 if(decorator.Inner == null)
-                    fail();
+                    {fail(); return;}
                 if(!(decorator.Inner is TestClass))
-                    fail();
+                    {fail(); return;}
             } 
             catch (ResolveError e) 
             {
