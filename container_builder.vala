@@ -89,6 +89,8 @@ namespace Diva
     {
         private ResolveFunc<T> resolveFunc;
         private Collection<ServiceRegistration> _services = new LinkedList<ServiceRegistration>();
+        private Collection<Type> _decorations = new LinkedList<Type>();
+
         internal CreationStrategy creation_strategy {get; set;}
 
         public DelegateRegistrationContext(owned ResolveFunc<T> resolver)
@@ -97,6 +99,7 @@ namespace Diva
         }
 
         internal Collection<ServiceRegistration> services {get{return _services;}}
+        internal Collection<Type> decorations {get{return _decorations;}}
 
         public ICreator<T> GetCreator()
         {
@@ -142,13 +145,18 @@ namespace Diva
     {
         private Map<Type, ICreator> services;
         private Map<Type, Map<Value?, ICreator>> keyedServices;
+        private Map<Type, ICreator> decorators;
         
         private Deque<Type> currentCreations = new LinkedList<Type>();
         
-        public DefaultContainer(Map<Type, ICreator> services, Map<Type, Map<Value?, ICreator>> keyedServices)
+        public DefaultContainer(Map<Type, ICreator> services, 
+                                Map<Type, Map<Value?, ICreator>> keyedServices,
+                                Map<Type, ICreator>? decorators = null
+                                )
         {
             this.services = services;
             this.keyedServices = keyedServices;
+            this.decorators = decorators;
         }
 
         public T Resolve<T>()

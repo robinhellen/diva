@@ -9,6 +9,7 @@ namespace Diva
         public Type Type {get {return typeof(T);}}
 
         internal abstract Collection<ServiceRegistration> services {get;}
+        internal abstract Collection<Type> decorations {get;}
         internal abstract CreationStrategy creation_strategy {get; set;}
 
         public IRegistrationContext<T> As<TInterface>()
@@ -32,6 +33,12 @@ namespace Diva
 			if(t.is_enum())
 				keyValue.set_enum((int) key);
             AddServiceRegistration(typeof(TService), keyValue);
+            return this;
+        }
+        
+        public IRegistrationContext<T> AsDecorator<TService>()
+        {
+            decorations.add(typeof(TService));
             return this;
         }
         
