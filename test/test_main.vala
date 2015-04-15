@@ -15,6 +15,7 @@ namespace Diva.Tests
         rootSuite.add_suite(new IndexTests().get_suite());
         rootSuite.add_suite(new PropertyTests().get_suite());
         rootSuite.add_suite(new ErrorTests().get_suite());
+        rootSuite.add_suite(new DecoratorTests().get_suite());
 
         Test.run();
         return 0;
