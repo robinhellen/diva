@@ -22,7 +22,7 @@ namespace Diva
         {
             return creation_strategy.GetFinalCreator<T>(new DelegateCreator<T>(this));
         }
-        
+
         public IRegistrationContext<T> IgnoreProperty(string property)
         {
             return this;
@@ -48,12 +48,6 @@ namespace Diva
                 {
                     throw new ResolveError.InnerError(@"Unable to create $(typeof(T).name()): $(e.message)");
                 }
-            }
-            
-            public Lazy<T> CreateLazy(ComponentContext context)
-                throws ResolveError
-            {
-                return new Lazy<T>(() => {return Create(context);});
             }
         }
     }

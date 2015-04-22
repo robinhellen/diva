@@ -5,6 +5,7 @@ namespace Diva
         UnknownService,
         InnerError,
         BadDeclaration,
-        CyclicDependencies
+        CyclicDependencies,
+        NotImplemented
     }
 }

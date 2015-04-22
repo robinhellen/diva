@@ -42,13 +42,5 @@ namespace Diva
             }
             return cachedValue;
         }
-        
-        public Lazy<T> CreateLazy(ComponentContext context)
-        {
-            if(has_value)
-                return new Lazy<T>.from_value(cachedValue);
-            
-            return new Lazy<T>(() => {return Create(context);});
-        }
     }
 }

@@ -52,15 +52,20 @@ namespace Diva
     public delegate T ResolveFunc<T>(ComponentContext context)
             throws ResolveError;
 
+    public delegate T CheckedResolveFunc<T>();
+
     public interface ComponentContext : Object
     {
         internal abstract Object ResolveTyped(Type t)
             throws ResolveError;
-            
+
         internal abstract Lazy ResolveLazyTyped(Type t)
             throws ResolveError;
-            
+
         internal abstract Index ResolveIndexTyped(Type tService, Type tKey)
+            throws ResolveError;
+
+        public abstract void CheckCanResolveTyped(Type t, out CheckedResolveFunc? checkedResolver)
             throws ResolveError;
     }
 
@@ -68,20 +73,26 @@ namespace Diva
     {
         public abstract T Resolve<T>()
             throws ResolveError;
-            
+
         public abstract Lazy<T> ResolveLazy<T>()
             throws ResolveError;
-            
+
         public abstract Index<TService, TKey> ResolveIndexed<TService, TKey>()
+            throws ResolveError;
+
+        public abstract void CheckCanResolve<T>(out CheckedResolveFunc<T>? checkedResolver)
             throws ResolveError;
     }
 
+    [GenericAccessors]
     public interface ICreator<T> : Object
     {
         public abstract T Create(ComponentContext context)
             throws ResolveError;
-            
-        public abstract Lazy<T> CreateLazy(ComponentContext context)
-            throws ResolveError;
+
+        public Lazy<T> CreateLazy(CheckedResolveFunc<T> checkedResolver)
+        {
+            return new Lazy<T>(() => { return checkedResolver(); });
+        }
     }
 }
