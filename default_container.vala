@@ -17,7 +17,7 @@ namespace Diva
         {
             this.services = services;
             this.keyedServices = keyedServices;
-            this.decorators = decorators;
+            this.decorators = decorators ?? Map.empty<Type, ICreator>();
         }
 
         public T Resolve<T>()
