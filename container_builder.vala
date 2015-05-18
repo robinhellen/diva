@@ -24,6 +24,7 @@ namespace Diva
         {
             var services = new HashMap<Type, ICreator>();
             var keyedServices = new HashMap<Type, Map<Value?, ICreator>>();
+            var decorators = new HashMultiMap<Type, IDecoratorCreator>();
             foreach(var registration in registrations)
             {
                 var creator = registration.GetCreator();
@@ -43,9 +44,13 @@ namespace Diva
                         s[key] = creator;
                     }
                 }
+                foreach(var decoration in registration.decorations)
+                {
+                    decorators[decoration] = registration.GetDecoratorCreator();
+                }
             }
 
-            return new DefaultContainer(services, keyedServices);
+            return new DefaultContainer(services, keyedServices, decorators);
         }
     }
 
@@ -83,5 +88,14 @@ namespace Diva
             
         public abstract Lazy<T> CreateLazy(ComponentContext context)
             throws ResolveError;
+    }
+    
+    public interface IDecoratorCreator<T> : Object
+    {
+        public abstract T CreateDecorator(ComponentContext context, T inner)
+            throws ResolveError;
+            
+        /*public abstract Lazy<T> CreateLazy(ComponentContext context, Lazy<T> inner)
+            throws ResolveError; */       
     }
 }

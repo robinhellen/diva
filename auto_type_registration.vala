@@ -17,6 +17,11 @@ namespace Diva
         {
             return creation_strategy.GetFinalCreator<T>(new AutoTypeCreator<T>(this, ignoredProperties));
         }
+
+        public IDecoratorCreator<T> GetDecoratorCreator()
+        {
+            return creation_strategy.GetFinalDecoratorCreator<T>(new AutoTypeCreator<T>(this, ignoredProperties));
+        }
         
         public IRegistrationContext<T> IgnoreProperty(string property)
         {
@@ -24,7 +29,7 @@ namespace Diva
             return this;
         }
 
-        private class AutoTypeCreator<T> : Object, ICreator<T>
+        private class AutoTypeCreator<T> : Object, ICreator<T>, IDecoratorCreator<T>
         {
             private AutoTypeRegistration<T> registration;
             private Collection<string> ignoredProperties;
@@ -57,6 +62,45 @@ namespace Diva
                         {
                             CreatorFunc func;
                             if(IsSpecial(t, out func))
+                                func(prop, context, ref p);
+                            else
+                                p.value.set_object(context.ResolveTyped(t));
+                        }
+                        catch(ResolveError e)
+                        {
+                            throw new ResolveError.InnerError(@"Cannot satify parameter $(prop.name) [$(t.name())]: $(e.message)");
+                        }
+
+                        params += p;
+
+                    }
+                }
+                return (T) Object.newv(typeof(T), params);
+            }
+            
+            public T CreateDecorator(ComponentContext context, T inner)
+                throws ResolveError
+            {
+                var cls = typeof(T).class_ref();
+                var properties = ((ObjectClass)cls).list_properties();
+                var params = new Parameter[] {};
+                foreach(var prop in properties)
+                {
+                    if(ignoredProperties.contains(prop.name))
+                        continue;
+                    if(CanInjectProperty(prop))
+                    {
+                        var p = Parameter();
+                        var t = prop.value_type;
+                        p.name = prop.name;
+                        p.value = Value(t);
+                        
+                        try
+                        {
+                            CreatorFunc func;
+                            if(prop.name == "Inner")
+                                p.value.set_object((Object)inner);
+                            else if(IsSpecial(t, out func))
                                 func(prop, context, ref p);
                             else
                                 p.value.set_object(context.ResolveTyped(t));

@@ -6,18 +6,18 @@ namespace Diva
     {
         private Map<Type, ICreator> services;
         private Map<Type, Map<Value?, ICreator>> keyedServices;
-        private Map<Type, ICreator> decorators;
+        private MultiMap<Type, IDecoratorCreator> decorators;
         
         private Deque<Type> currentCreations = new LinkedList<Type>();
         
         public DefaultContainer(Map<Type, ICreator> services, 
                                 Map<Type, Map<Value?, ICreator>> keyedServices,
-                                Map<Type, ICreator>? decorators = null
+                                MultiMap<Type, IDecoratorCreator>? decorators
                                 )
         {
             this.services = services;
             this.keyedServices = keyedServices;
-            this.decorators = decorators ?? Map.empty<Type, ICreator>();
+            this.decorators = decorators;
         }
 
         public T Resolve<T>()
@@ -73,8 +73,21 @@ namespace Diva
                 throw new ResolveError.UnknownService(@"No component has been registered providing the service $(t.name()).");
             ICreator<Object> realCreator = creator;
             var o = realCreator.Create(this);
+            var decoratorCreators = decorators[t];
+            if(decoratorCreators == null)
+            {
+                FinishedCreating(t);
+                return o;
+            }
+            
+            var decorated = o;
+            foreach(var decoratorCreator in decoratorCreators)
+            {
+                IDecoratorCreator<Object> realDecoratorCreator = decoratorCreator;
+                decorated = realDecoratorCreator.CreateDecorator(this, decorated);
+            }
             FinishedCreating(t);
-            return o;
+            return decorated;
         }
 
         internal Lazy ResolveLazyTyped(Type t)

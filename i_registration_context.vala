@@ -6,6 +6,8 @@ namespace Diva
     public interface IRegistrationContext<T> : Object
     {
         public abstract ICreator GetCreator();
+        public abstract IDecoratorCreator GetDecoratorCreator();
+        
         public Type Type {get {return typeof(T);}}
 
         internal abstract Collection<ServiceRegistration> services {get;}

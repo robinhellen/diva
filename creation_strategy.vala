@@ -19,6 +19,19 @@ namespace Diva
                     assert_not_reached();
             }
         }
+
+        public IDecoratorCreator<T> GetFinalDecoratorCreator<T>(IDecoratorCreator<T> creator)
+        {
+            switch(this)
+            {
+                case PerDependency:
+                    return creator;
+                case SingleInstance:
+                    return new CachingDecoratorCreator<T>(creator);
+                default:
+                    assert_not_reached();
+            }
+        }
     }
 
     internal class CachingCreator<T> : Object, ICreator<T>
@@ -49,6 +62,29 @@ namespace Diva
                 return new Lazy<T>.from_value(cachedValue);
             
             return new Lazy<T>(() => {return Create(context);});
+        }
+    }
+
+    internal class CachingDecoratorCreator<T> : Object, IDecoratorCreator<T>
+    {
+        private T cachedValue;
+        private bool has_value = false;
+        private IDecoratorCreator<T> innerCreator;
+
+        public CachingDecoratorCreator(IDecoratorCreator<T> inner)
+        {
+            innerCreator = inner;
+        }
+
+        public T CreateDecorator(ComponentContext context, T inner)
+            throws ResolveError
+        {
+            if(!has_value)
+            {
+                cachedValue = innerCreator.CreateDecorator(context, inner);
+                has_value = true;
+            }
+            return cachedValue;
         }
     }
 }
