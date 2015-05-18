@@ -24,28 +24,14 @@ namespace Diva
             throws ResolveError
         {
             var t = typeof(T);
-            CheckForLoop(t);
-            var creator = services[t];
-            if(creator == null)
-                throw new ResolveError.UnknownService(@"No component has been registered providing the service $(t.name()).");
-            ICreator<T> realCreator = creator;
-            var o = realCreator.Create(this);
-            FinishedCreating(t);
-            return o;
+            return (T) ResolveTyped(t);
         }
         
         public Lazy<T> ResolveLazy<T>()
             throws ResolveError
         {
             var t = typeof(T);
-            CheckForLoop(t);
-            var creator = services[t];
-            if(creator == null)
-                throw new ResolveError.UnknownService(@"No component has been registered providing the service $(t.name()).");
-            ICreator<T> realCreator = creator;
-            var o = realCreator.CreateLazy(this);
-            FinishedCreating(t);
-            return o;
+            return (Lazy<T>) ResolveLazyTyped(t);
         }
         
         public Index<TService, TKey> ResolveIndexed<TService, TKey>()
