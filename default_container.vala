@@ -37,7 +37,6 @@ namespace Diva
         public Index<TService, TKey> ResolveIndexed<TService, TKey>()
         {
             var t = typeof(TService);
-            CheckForLoop(t);
             var tkey = typeof(TKey);
             var keysForService = keyedServices[t];
             var keyedCreators = new HashMap<TKey, ICreator<TService>>();
@@ -49,7 +48,6 @@ namespace Diva
                 keyedCreators[ExtractKey<TKey>(v.key)] = v.value;
             }
             var index = new CreatorIndex<TService, TKey>(keyedCreators, this);
-            FinishedCreating(t);
             return index;
         }
         
@@ -107,7 +105,6 @@ namespace Diva
         internal Index ResolveIndexTyped(Type tService, Type tKey)
             throws ResolveError
         {
-            CheckForLoop(tService);
             var keysForService = keyedServices[tService];
             
             var index = (CreatorTypedIndex)Object.new(typeof(CreatorTypedIndex),
@@ -116,7 +113,6 @@ namespace Diva
                 context: this,
                 keysForService: keysForService
             );
-            FinishedCreating(tService);
             return index;
         }
         
