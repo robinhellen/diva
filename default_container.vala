@@ -109,15 +109,14 @@ namespace Diva
             throws ResolveError
         {
             CheckForLoop(t);
-            var collection = (Collection)Object.new(typeof(LinkedList), "g-type", t);
+            var collection = new LinkedList<Object>();
             var creators = allServices[t];
-            var fakeCollection = (Collection<Object>)collection;
             foreach(var creator in creators)
             {
                 ICreator<Object> realCreator = creator;
 
                 var o = realCreator.Create(this);
-                fakeCollection.add(o);
+                collection.add(o);
             }
             FinishedCreating(t);
             return collection;
