@@ -7,15 +7,18 @@ namespace Diva
         private Map<Type, ICreator> services;
         private Map<Type, Map<Value?, ICreator>> keyedServices;
         private MultiMap<Type, IDecoratorCreator> decorators;
-        
+        private MultiMap<Type, ICreator> allServices;
+
         private Deque<Type> currentCreations = new LinkedList<Type>();
-        
-        public DefaultContainer(Map<Type, ICreator> services, 
+
+        public DefaultContainer(Map<Type, ICreator> services,
+                                MultiMap<Type, ICreator> allServices,
                                 Map<Type, Map<Value?, ICreator>> keyedServices,
                                 MultiMap<Type, IDecoratorCreator>? decorators
                                 )
         {
             this.services = services;
+            this.allServices = allServices;
             this.keyedServices = keyedServices;
             this.decorators = decorators;
         }
@@ -26,21 +29,21 @@ namespace Diva
             var t = typeof(T);
             return (T) ResolveTyped(t);
         }
-        
+
         public Lazy<T> ResolveLazy<T>()
             throws ResolveError
         {
             var t = typeof(T);
             return (Lazy<T>) ResolveLazyTyped(t);
         }
-        
+
         public Index<TService, TKey> ResolveIndexed<TService, TKey>()
         {
             var t = typeof(TService);
             var tkey = typeof(TKey);
             var keysForService = keyedServices[t];
             var keyedCreators = new HashMap<TKey, ICreator<TService>>();
-            
+
             foreach(var v in keysForService.entries)
             {
                 if(v.key.type() != tkey)
@@ -50,17 +53,17 @@ namespace Diva
             var index = new CreatorIndex<TService, TKey>(keyedCreators, this);
             return index;
         }
-        
-		private T ExtractKey<T>(Value v)
-		{
-			var valueType = v.type();
-			if(valueType.is_enum())
-			{
-				var key = (T)v.get_enum();
-				return key;
-			}
-			return (T)v.get_pointer;
-		}
+
+        private T ExtractKey<T>(Value v)
+        {
+            var valueType = v.type();
+            if(valueType.is_enum())
+            {
+                var key = (T)v.get_enum();
+                return key;
+            }
+            return (T)v.get_pointer;
+        }
 
         internal Object ResolveTyped(Type t)
             throws ResolveError
@@ -77,7 +80,7 @@ namespace Diva
                 FinishedCreating(t);
                 return o;
             }
-            
+
             var decorated = o;
             foreach(var decoratorCreator in decoratorCreators)
             {
@@ -96,17 +99,35 @@ namespace Diva
             if(creator == null)
                 throw new ResolveError.UnknownService(@"No component has been registered providing the service $(t.name()).");
             ICreator<Object> realCreator = creator;
-            
+
             var o = realCreator.CreateLazy(this);
             FinishedCreating(t);
             return o;
         }
-        
+
+        internal Collection ResolveCollectionTyped(Type t)
+            throws ResolveError
+        {
+            CheckForLoop(t);
+            var collection = (Collection)Object.new(typeof(LinkedList), "g-type", t);
+            var creators = allServices[t];
+            var fakeCollection = (Collection<Object>)collection;
+            foreach(var creator in creators)
+            {
+                ICreator<Object> realCreator = creator;
+
+                var o = realCreator.Create(this);
+                fakeCollection.add(o);
+            }
+            FinishedCreating(t);
+            return collection;
+        }
+
         internal Index ResolveIndexTyped(Type tService, Type tKey)
             throws ResolveError
         {
             var keysForService = keyedServices[tService];
-            
+
             var index = (CreatorTypedIndex)Object.new(typeof(CreatorTypedIndex),
                 tkey_type: tKey,
                 tservice_type: tService,
@@ -115,16 +136,16 @@ namespace Diva
             );
             return index;
         }
-        
+
         private void CheckForLoop(Type t)
             throws ResolveError
         {
             if(currentCreations.contains(t))
                 throw new ResolveError.CyclicDependencies("Whee!! - I'm in a loop.");
-            
+
             currentCreations.offer_head(t);
         }
-        
+
         private void FinishedCreating(Type t)
         {
             var head = currentCreations.poll_head();
