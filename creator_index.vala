@@ -9,31 +9,38 @@ namespace Diva
             this.context = context;
             this.keyedCreators = keyedCreators;
         }
-        
-		private Map<TKey, ICreator<TService>> keyedCreators {set; get;}
-		public ComponentContext context {construct set; private get;}
 
-		public new TService @get(TKey key)
-		{
+        private Map<TKey, ICreator<TService>> keyedCreators {set; get;}
+        public ComponentContext context {construct set; private get;}
+
+        public new TService @get(TKey key)
+        {
             var creator = keyedCreators[key];
             if(creator == null)
                 return null;
-			return creator.Create(context);
-		}
+            return creator.Create(context);
+        }
     }
-    
+
     public class CreatorTypedIndex<TService, TKey>: Object, Index<TService, TKey>
-    {        
-		private Map<TKey, ICreator<TService>> keyedCreators {set; get;}
-		public ComponentContext context {construct set; private get;}
+    {
+        private Map<TKey, ICreator<TService>> keyedCreators {set; get;}
+        public ComponentContext context {construct set; private get;}
         public Map<Value?, ICreator> keysForService {construct; private get;}
-        
+
         construct
-        {           
+        {
             var t = typeof(TService);
             var tkey = typeof(TKey);
-            keyedCreators = new HashMap<TKey, ICreator<TService>>();
-            
+            if(tkey == typeof(string))
+            {
+                keyedCreators = new HashMap<TKey, ICreator<TService>>(x => str_hash((string) x), (x, y) => str_equal((string)x, (string)y));
+            }
+            else
+            {
+                keyedCreators = new HashMap<TKey, ICreator<TService>>();
+            }
+
             foreach(var v in keysForService.entries)
             {
                 if(v.key.type() != tkey)
@@ -42,24 +49,29 @@ namespace Diva
             }
         }
 
-		public new TService @get(TKey key)
-		{
+        public new TService @get(TKey key)
+        {
             var creator = keyedCreators[key];
             if(creator == null)
                 return null;
-			return creator.Create(context);
-		}
-        
-		private T ExtractKey<T>(Value v)
-		{
-			var valueType = v.type();
-			if(valueType.is_enum())
-			{
-				var key = (T)v.get_enum();
-				return key;
-			}
-			return (T)v.get_pointer;
-		}
+            return creator.Create(context);
+        }
+
+        private T ExtractKey<T>(Value v)
+        {
+            var valueType = v.type();
+            if(valueType.is_enum())
+            {
+                var key = (T)v.get_enum();
+                return key;
+            }
+            if(valueType == (typeof(string)))
+            {
+                var s = v.get_string();
+                return s;
+            }
+            return (T)v.get_pointer;
+        }
     }
 }
 

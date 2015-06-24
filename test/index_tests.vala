@@ -14,6 +14,7 @@ namespace Diva.Tests
             add_test("ResolveDirectly", ResolveDirectly);
             add_test("ResolveAsComponent", ResolveAsComponent);
             add_test("CanIndexOnStrings", CanIndexOnStrings);
+            add_test("CanIndexComponentsOnStrings", CanIndexComponentsOnStrings);
         }
 
         private void ResolveDirectly()
@@ -90,6 +91,28 @@ namespace Diva.Tests
             } catch (ResolveError e) {Test.message(@"ResolveError: $(e.message)"); fail(); }
         }
 
+        private void CanIndexComponentsOnStrings()
+        {
+            var builder = new ContainerBuilder();
+            builder.Register<ServiceA>().Keyed<InterfaceA, string>("A");
+            builder.Register<ServiceB>().Keyed<InterfaceA, string>("B");
+            builder.Register<RequiresStringIndex>();
+            var container = builder.Build();
+
+            try {
+                var resolved = container.Resolve<RequiresStringIndex>();
+                var a = resolved.Indexed["A"];
+                if(a == null)
+                    fail();
+
+                var b = resolved.Indexed["B"];
+                if(b == null)
+                    fail();
+
+            } catch (ResolveError e) {
+                    stderr.printf("error 3: %s\n", e.message);Test.message(@"ResolveError: $(e.message)"); fail(); }
+        }
+
         private class ServiceA : Object, InterfaceA {}
 
         private class ServiceB : Object, InterfaceA {}
@@ -105,6 +128,17 @@ namespace Diva.Tests
             }
 
             public Index<InterfaceA, ServiceEnum> Indexed {construct; get;}
+        }
+
+        private class RequiresStringIndex : Object
+        {
+            static construct
+            {
+                var cls = (ObjectClass)typeof(RequiresStringIndex).class_ref();
+                SetIndexedInjection<string, InterfaceA>(cls, "Indexed");
+            }
+
+            public Index<InterfaceA, string> Indexed {construct; get;}
         }
     }
 
