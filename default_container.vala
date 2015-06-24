@@ -42,7 +42,15 @@ namespace Diva
             var t = typeof(TService);
             var tkey = typeof(TKey);
             var keysForService = keyedServices[t];
-            var keyedCreators = new HashMap<TKey, ICreator<TService>>();
+            Map<TKey, ICreator> keyedCreators;
+            if(tkey == typeof(string))
+            {
+                keyedCreators = new HashMap<TKey, ICreator<TService>>(x => str_hash((string) x), (x, y) => str_equal((string)x, (string)y));
+            }
+            else
+            {
+                keyedCreators = new HashMap<TKey, ICreator<TService>>();
+            }
 
             foreach(var v in keysForService.entries)
             {
@@ -61,6 +69,11 @@ namespace Diva
             {
                 var key = (T)v.get_enum();
                 return key;
+            }
+            if(valueType == (typeof(string)))
+            {
+                var s = v.get_string();
+                return s;
             }
             return (T)v.get_pointer;
         }

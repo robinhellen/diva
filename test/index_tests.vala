@@ -13,6 +13,7 @@ namespace Diva.Tests
 
             add_test("ResolveDirectly", ResolveDirectly);
             add_test("ResolveAsComponent", ResolveAsComponent);
+            add_test("CanIndexOnStrings", CanIndexOnStrings);
         }
 
         private void ResolveDirectly()
@@ -21,8 +22,8 @@ namespace Diva.Tests
             builder.Register<ServiceA>().Keyed<InterfaceA, ServiceEnum>(ServiceEnum.A);
             builder.Register<ServiceB>().Keyed<InterfaceA, ServiceEnum>(ServiceEnum.B);
             var container = builder.Build();
-             
-            try 
+
+            try
             {
                 var resolved = container.ResolveIndexed<InterfaceA, ServiceEnum>();
                 var a = resolved[ServiceEnum.A];
@@ -31,7 +32,7 @@ namespace Diva.Tests
                     stderr.printf("Unable to create for A\n");
                     fail();
                 }
-                
+
                 var b = resolved[ServiceEnum.B];
                 if(b == null)
                 {
@@ -48,27 +49,53 @@ namespace Diva.Tests
             builder.Register<ServiceB>().Keyed<InterfaceA, ServiceEnum>(ServiceEnum.B);
             builder.Register<RequiresIndex>();
             var container = builder.Build();
-             
+
             try {
                 var resolved = container.Resolve<RequiresIndex>();
                 var a = resolved.Indexed[ServiceEnum.A];
                 if(a == null)
                     fail();
-                
+
                 var b = resolved.Indexed[ServiceEnum.B];
                 if(b == null)
                     fail();
 
             } catch (ResolveError e) {
                     stderr.printf("error 3: %s\n", e.message);Test.message(@"ResolveError: $(e.message)"); fail(); }
-        }       
+        }
+
+        private void CanIndexOnStrings()
+        {
+            var builder = new ContainerBuilder();
+            builder.Register<ServiceA>().Keyed<InterfaceA, string>("A");
+            builder.Register<ServiceB>().Keyed<InterfaceA, string>("B");
+            var container = builder.Build();
+
+            try
+            {
+                var resolved = container.ResolveIndexed<InterfaceA, string>();
+                var a = resolved["A"];
+                if(a == null)
+                {
+                    stderr.printf("Unable to create for A\n");
+                    fail();
+                }
+
+                var b = resolved["B"];
+                if(b == null)
+                {
+                    stderr.printf("Unable to create for B\n");
+                    fail();
+                }
+            } catch (ResolveError e) {Test.message(@"ResolveError: $(e.message)"); fail(); }
+        }
 
         private class ServiceA : Object, InterfaceA {}
-        
+
         private class ServiceB : Object, InterfaceA {}
-        
-        private enum ServiceEnum {A, B}        
-        
+
+        private enum ServiceEnum {A, B}
+
         private class RequiresIndex : Object
         {
             static construct
@@ -76,11 +103,11 @@ namespace Diva.Tests
                 var cls = (ObjectClass)typeof(RequiresIndex).class_ref();
                 SetIndexedInjection<ServiceEnum, InterfaceA>(cls, "Indexed");
             }
-            
+
             public Index<InterfaceA, ServiceEnum> Indexed {construct; get;}
         }
     }
-        
+
         private interface InterfaceA : Object {}
 }
 
