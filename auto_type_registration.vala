@@ -10,7 +10,7 @@ namespace Diva
         internal Collection<ServiceRegistration> services {get{return _services;}}
         internal Collection<Type> decorations {get{return _decorations;}}
         internal CreationStrategy creation_strategy {get; set;}
-        
+
         private Collection<string> ignoredProperties = new ArrayList<string>();
 
         public ICreator<T> GetCreator()
@@ -22,7 +22,7 @@ namespace Diva
         {
             return creation_strategy.GetFinalDecoratorCreator<T>(new AutoTypeCreator<T>(this, ignoredProperties));
         }
-        
+
         public IRegistrationContext<T> IgnoreProperty(string property)
         {
             ignoredProperties.add(property);
@@ -57,7 +57,7 @@ namespace Diva
                         p.name = prop.name;
 
                         p.value = Value(t);
-                        
+
                         try
                         {
                             CreatorFunc func;
@@ -77,7 +77,7 @@ namespace Diva
                 }
                 return (T) Object.newv(typeof(T), params);
             }
-            
+
             public T CreateDecorator(ComponentContext context, T inner)
                 throws ResolveError
             {
@@ -94,7 +94,7 @@ namespace Diva
                         var t = prop.value_type;
                         p.name = prop.name;
                         p.value = Value(t);
-                        
+
                         try
                         {
                             CreatorFunc func;
@@ -116,7 +116,7 @@ namespace Diva
                 }
                 return (T) Object.newv(typeof(T), params);
             }
-            
+
             public Lazy<T> CreateLazy(ComponentContext context)
             {
                 return new Lazy<T>(() => { return Create(context); });
@@ -128,7 +128,7 @@ namespace Diva
                 return (  ((flags & ParamFlags.CONSTRUCT) == ParamFlags.CONSTRUCT)
                   || ((flags & ParamFlags.CONSTRUCT_ONLY) == ParamFlags.CONSTRUCT_ONLY));
             }
-            
+
             private bool IsSpecial(Type t, out CreatorFunc func)
             {
                 if(t == typeof(Lazy))
@@ -141,33 +141,51 @@ namespace Diva
                     func = IndexCreator;
                     return true;
                 }
+                if(t == typeof(Collection))
+                {
+                    func = CollectionCreator;
+                    return true;
+                }
                 func = null;
                 return false;
             }
-            
+
             private delegate void CreatorFunc(ParamSpec p, ComponentContext context, ref Parameter param)
                 throws ResolveError;
-            
+
             private void LazyCreator(ParamSpec p, ComponentContext context, ref Parameter param)
                 throws ResolveError
             {
-                // get the type                
+                // get the type
                 var lazyData = (LazyPropertyData)p.get_qdata(LazyPropertyData.Q);
                 if(lazyData == null)
                     throw new ResolveError.BadDeclaration("To support injection of lazy properties, call SetLazyInjection in your static construct block.");
                 Type t = lazyData.DepType;
-            
-                
+
+
                 param.value.set_instance(context.ResolveLazyTyped(t));
             }
-            
+
+            private void CollectionCreator(ParamSpec p, ComponentContext context, ref Parameter param)
+                throws ResolveError
+            {
+                // get the type
+                var lazyData = (CollectionPropertyData)p.get_qdata(CollectionPropertyData.Q);
+                if(lazyData == null)
+                    throw new ResolveError.BadDeclaration("To support injection of collection properties, call SetCollectionInjection in your static construct block.");
+                Type t = lazyData.DepType;
+
+
+                param.value.set_instance(context.ResolveCollectionTyped(t));
+            }
+
             private void IndexCreator(ParamSpec p, ComponentContext context, ref Parameter param)
                 throws ResolveError
             {
                 var indexData = (IndexPropertyData)p.get_qdata(IndexPropertyData.Q);
                 if(indexData == null)
                      throw new ResolveError.BadDeclaration("To support injection of index properties, call SetIndexedInjection in your static construct block.");
-                
+
                 param.value.set_instance(context.ResolveIndexTyped(indexData.Dependency, indexData.Key));
             }
         }
