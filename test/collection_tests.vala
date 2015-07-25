@@ -13,7 +13,7 @@ namespace Diva.Tests
 
             add_test("ResolveDirectly", ResolveDirectly);
             add_test("ResolveAsComponent", ResolveAsComponent);
-            //add_test("CanBeEmpty", CanBeEmpty);
+            add_test("CanBeEmpty", CanBeEmpty);
         }
 
         private void ResolveDirectly()
@@ -65,6 +65,23 @@ namespace Diva.Tests
                 var b = resolved.Collection.to_array()[1];
                 if(b == null)
                     fail();
+
+            } catch (ResolveError e) {
+                    stderr.printf("error 3: %s\n", e.message);Test.message(@"ResolveError: $(e.message)"); fail(); }
+        }
+
+        private void CanBeEmpty()
+        {
+            var builder = new ContainerBuilder();
+            builder.Register<RequiresCollection>();
+            var container = builder.Build();
+
+            try {
+                var resolved = container.Resolve<RequiresCollection>();
+                if(resolved.Collection.size != 0)
+                {
+                    fail();
+                }
 
             } catch (ResolveError e) {
                     stderr.printf("error 3: %s\n", e.message);Test.message(@"ResolveError: $(e.message)"); fail(); }
