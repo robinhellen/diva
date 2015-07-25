@@ -37,6 +37,13 @@ namespace Diva
             return (Lazy<T>) ResolveLazyTyped(t);
         }
 
+        public Collection<T> ResolveCollection<T>()
+            throws ResolveError
+        {
+            var t = typeof(T);
+            return (Collection<T>) ResolveCollectionTyped(t);
+        }
+
         public Index<TService, TKey> ResolveIndexed<TService, TKey>()
         {
             var t = typeof(TService);

@@ -81,6 +81,8 @@ namespace Diva
 
         public abstract Lazy<T> ResolveLazy<T>()
             throws ResolveError;
+        public abstract Collection<T> ResolveCollection<T>()
+            throws ResolveError;
 
         public abstract Index<TService, TKey> ResolveIndexed<TService, TKey>()
             throws ResolveError;
