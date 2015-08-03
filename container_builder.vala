@@ -20,6 +20,16 @@ namespace Diva
             return registration;
         }
 
+        public void RegisterModule<T>(T module = null)
+            requires(typeof(T).is_a(typeof(Module)))
+        {
+            var realModule = module as Module;
+            if(realModule == null)
+                realModule = (Module)Object.new(typeof(T));
+
+            realModule.Load(this);
+        }
+
         public IContainer Build()
         {
             var services = new HashMap<Type, ICreator>();
@@ -104,5 +114,10 @@ namespace Diva
 
         /*public abstract Lazy<T> CreateLazy(ComponentContext context, Lazy<T> inner)
             throws ResolveError; */
+    }
+
+    public abstract class Module : Object
+    {
+        public abstract void Load(ContainerBuilder builder);
     }
 }
