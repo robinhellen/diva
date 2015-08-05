@@ -105,7 +105,7 @@ namespace Diva
             throws ResolveError;
     }
 
-    public interface ICreator<T> : Object
+    internal interface ICreator<T> : Object
     {
         public abstract T Create(ComponentContext context)
             throws ResolveError;
@@ -114,7 +114,7 @@ namespace Diva
             throws ResolveError;
     }
 
-    public interface IDecoratorCreator<T> : Object
+    internal interface IDecoratorCreator<T> : Object
     {
         public abstract T CreateDecorator(ComponentContext context, T inner)
             throws ResolveError;

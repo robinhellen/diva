@@ -5,8 +5,8 @@ namespace Diva
     [GenericAccessors]
     public interface IRegistrationContext<T> : Object
     {
-        public abstract ICreator GetCreator();
-        public abstract IDecoratorCreator GetDecoratorCreator();
+        internal abstract ICreator GetCreator();
+        internal abstract IDecoratorCreator GetDecoratorCreator();
 
         public Type Type {get {return typeof(T);}}
 
