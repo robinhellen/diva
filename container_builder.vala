@@ -20,6 +20,13 @@ namespace Diva
             return registration;
         }
 
+        public IRegistrationContext<T> RegisterInstance<T>(T instance)
+        {
+            var registration = new InstanceRegistrationContext<T>(instance);
+            registrations.add(registration);
+            return registration;
+        }
+
         public void RegisterModule<T>(T module = null)
             requires(typeof(T).is_a(typeof(Module)))
         {
