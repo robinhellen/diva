@@ -79,7 +79,7 @@ namespace Diva.Tests
         private void ResolveByInterface()
         {
             var builder = new ContainerBuilder();
-            builder.Register<TestClass>().As<TestInterface>();
+            builder.Register<TestClass>().as<TestInterface>();
 
             var container = builder.Build();
             try {

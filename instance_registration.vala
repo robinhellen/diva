@@ -18,17 +18,17 @@ namespace Diva
             this.instance = instance;
         }
 
-        public ICreator GetCreator()
+        public ICreator get_creator()
         {
             return new InstanceCreator<T>(instance);
         }
 
-        public IDecoratorCreator GetDecoratorCreator()
+        public IDecoratorCreator get_decorator_creator()
         {
             assert_not_reached();
         }
 
-        public IRegistrationContext<T> IgnoreProperty(string property)
+        public IRegistrationContext<T> ignore_property(string property)
         {
             return this;
         }

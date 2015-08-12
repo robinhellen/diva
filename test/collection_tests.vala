@@ -19,8 +19,8 @@ namespace Diva.Tests
         private void ResolveDirectly()
         {
             var builder = new ContainerBuilder();
-            builder.Register<ServiceA>().As<InterfaceA>();
-            builder.Register<ServiceB>().As<InterfaceA>();
+            builder.Register<ServiceA>().as<InterfaceA>();
+            builder.Register<ServiceB>().as<InterfaceA>();
             var container = builder.Build();
 
             try
@@ -51,8 +51,8 @@ namespace Diva.Tests
         private void ResolveAsComponent()
         {
             var builder = new ContainerBuilder();
-            builder.Register<ServiceA>().As<InterfaceA>();
-            builder.Register<ServiceB>().As<InterfaceA>();
+            builder.Register<ServiceA>().as<InterfaceA>();
+            builder.Register<ServiceB>().as<InterfaceA>();
             builder.Register<RequiresCollection>();
             var container = builder.Build();
 

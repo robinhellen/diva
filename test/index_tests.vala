@@ -20,8 +20,8 @@ namespace Diva.Tests
         private void ResolveDirectly()
         {
             var builder = new ContainerBuilder();
-            builder.Register<ServiceA>().Keyed<InterfaceA, ServiceEnum>(ServiceEnum.A);
-            builder.Register<ServiceB>().Keyed<InterfaceA, ServiceEnum>(ServiceEnum.B);
+            builder.Register<ServiceA>().keyed<InterfaceA, ServiceEnum>(ServiceEnum.A);
+            builder.Register<ServiceB>().keyed<InterfaceA, ServiceEnum>(ServiceEnum.B);
             var container = builder.Build();
 
             try
@@ -46,8 +46,8 @@ namespace Diva.Tests
         private void ResolveAsComponent()
         {
             var builder = new ContainerBuilder();
-            builder.Register<ServiceA>().Keyed<InterfaceA, ServiceEnum>(ServiceEnum.A);
-            builder.Register<ServiceB>().Keyed<InterfaceA, ServiceEnum>(ServiceEnum.B);
+            builder.Register<ServiceA>().keyed<InterfaceA, ServiceEnum>(ServiceEnum.A);
+            builder.Register<ServiceB>().keyed<InterfaceA, ServiceEnum>(ServiceEnum.B);
             builder.Register<RequiresIndex>();
             var container = builder.Build();
 
@@ -68,8 +68,8 @@ namespace Diva.Tests
         private void CanIndexOnStrings()
         {
             var builder = new ContainerBuilder();
-            builder.Register<ServiceA>().Keyed<InterfaceA, string>("A");
-            builder.Register<ServiceB>().Keyed<InterfaceA, string>("B");
+            builder.Register<ServiceA>().keyed<InterfaceA, string>("A");
+            builder.Register<ServiceB>().keyed<InterfaceA, string>("B");
             var container = builder.Build();
 
             try
@@ -94,8 +94,8 @@ namespace Diva.Tests
         private void CanIndexComponentsOnStrings()
         {
             var builder = new ContainerBuilder();
-            builder.Register<ServiceA>().Keyed<InterfaceA, string>("A");
-            builder.Register<ServiceB>().Keyed<InterfaceA, string>("B");
+            builder.Register<ServiceA>().keyed<InterfaceA, string>("A");
+            builder.Register<ServiceB>().keyed<InterfaceA, string>("B");
             builder.Register<RequiresStringIndex>();
             var container = builder.Build();
 

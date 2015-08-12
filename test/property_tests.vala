@@ -17,7 +17,7 @@ namespace Diva.Tests
         {
             var builder = new ContainerBuilder();
             builder.Register<TestClass>()
-                    .IgnoreProperty("ignore-this");
+                    .ignore_property("ignore-this");
 
             var container = builder.Build();
             try {
@@ -26,7 +26,7 @@ namespace Diva.Tests
                 fail();
             } catch (ResolveError e) {Test.message(@"ResolveError: $(e.message)"); fail(); }
         }
-        
+
         private class TestClass : Object
         {
             public int ignore_this {get; construct;}

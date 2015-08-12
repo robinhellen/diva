@@ -18,17 +18,17 @@ namespace Diva
         internal Collection<ServiceRegistration> services {get{return _services;}}
         internal Collection<Type> decorations {get{return _decorations;}}
 
-        public ICreator<T> GetCreator()
+        public ICreator<T> get_creator()
         {
             return creation_strategy.GetFinalCreator<T>(new DelegateCreator<T>(this));
         }
-               
-        public IDecoratorCreator<T> GetDecoratorCreator()
+
+        public IDecoratorCreator<T> get_decorator_creator()
         {
             return creation_strategy.GetFinalDecoratorCreator<T>(new DelegateCreator<T>(this));
         }
-        
-        public IRegistrationContext<T> IgnoreProperty(string property)
+
+        public IRegistrationContext<T> ignore_property(string property)
         {
             return this;
         }
@@ -41,7 +41,7 @@ namespace Diva
             {
                 this.registration = registration;
             }
-            
+
             public T CreateDecorator(ComponentContext context, T inner)
                 throws ResolveError
             {
@@ -60,7 +60,7 @@ namespace Diva
                     throw new ResolveError.InnerError(@"Unable to create $(typeof(T).name()): $(e.message)");
                 }
             }
-            
+
             public Lazy<T> CreateLazy(ComponentContext context)
                 throws ResolveError
             {

@@ -45,27 +45,27 @@ namespace Diva
             var decorators = new HashMultiMap<Type, IDecoratorCreator>();
             foreach(var registration in registrations)
             {
-                var creator = registration.GetCreator();
-                services[registration.Type] = creator;
+                var creator = registration.get_creator();
+                services[registration.component_type] = creator;
                 foreach(var service in registration.services)
                 {
-                    services[service.ServiceType] = creator;
-                    allServices[service.ServiceType] = creator;
-                    if(service.Keys != null)
-                    foreach(var key in service.Keys)
+                    services[service.service_type] = creator;
+                    allServices[service.service_type] = creator;
+                    if(service.keys != null)
+                    foreach(var key in service.keys)
                     {
-                        var s = keyedServices[service.ServiceType];
+                        var s = keyedServices[service.service_type];
                         if(s == null)
                         {
                             s = new HashMap<Value?, ICreator>();
-                            keyedServices[service.ServiceType] = s;
+                            keyedServices[service.service_type] = s;
                         }
                         s[key] = creator;
                     }
                 }
                 foreach(var decoration in registration.decorations)
                 {
-                    decorators[decoration] = registration.GetDecoratorCreator();
+                    decorators[decoration] = registration.get_decorator_creator();
                 }
             }
 

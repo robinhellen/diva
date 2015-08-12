@@ -14,7 +14,7 @@ Components that provide services are registered with a ```ContainerBuilder```
 Diva can use a delegate, a type, or an exising instance:
 
     builder.Register<FooService>(ctx => new FooComponent());
-    builder.Register<FooComponent>().As<FooService>();
+    builder.Register<FooComponent>().as<FooService>();
     builder.RegisterInstance<FooService>(new FooComponent());
 calling ```Build()``` creates a container
 

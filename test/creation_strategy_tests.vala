@@ -36,7 +36,7 @@ namespace Diva.Tests
             InstantiationCounter.ResetCount();
 
             var builder = new ContainerBuilder();
-            builder.Register<InstantiationCounter>().SingleInstance();
+            builder.Register<InstantiationCounter>().single_instance();
             var container = builder.Build();
             try {
                 var counter = container.Resolve<InstantiationCounter>();

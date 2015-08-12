@@ -13,17 +13,17 @@ namespace Diva
 
         private Collection<string> ignoredProperties = new ArrayList<string>();
 
-        public ICreator<T> GetCreator()
+        public ICreator<T> get_creator()
         {
             return creation_strategy.GetFinalCreator<T>(new AutoTypeCreator<T>(this, ignoredProperties));
         }
 
-        public IDecoratorCreator<T> GetDecoratorCreator()
+        public IDecoratorCreator<T> get_decorator_creator()
         {
             return creation_strategy.GetFinalDecoratorCreator<T>(new AutoTypeCreator<T>(this, ignoredProperties));
         }
 
-        public IRegistrationContext<T> IgnoreProperty(string property)
+        public IRegistrationContext<T> ignore_property(string property)
         {
             ignoredProperties.add(property);
             return this;
