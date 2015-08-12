@@ -19,11 +19,11 @@ namespace Diva.Tests
             InstantiationCounter.ResetCount();
 
             var builder = new ContainerBuilder();
-            builder.Register<InstantiationCounter>();
-            var container = builder.Build();
+            builder.register<InstantiationCounter>();
+            var container = builder.build();
             try {
-                var counter = container.Resolve<InstantiationCounter>();
-                counter = container.Resolve<InstantiationCounter>();
+                var counter = container.resolve<InstantiationCounter>();
+                counter = container.resolve<InstantiationCounter>();
 
 
                 if(InstantiationCounter.InstantiationCount != 2)
@@ -36,11 +36,11 @@ namespace Diva.Tests
             InstantiationCounter.ResetCount();
 
             var builder = new ContainerBuilder();
-            builder.Register<InstantiationCounter>().single_instance();
-            var container = builder.Build();
+            builder.register<InstantiationCounter>().single_instance();
+            var container = builder.build();
             try {
-                var counter = container.Resolve<InstantiationCounter>();
-                counter = container.Resolve<InstantiationCounter>();
+                var counter = container.resolve<InstantiationCounter>();
+                counter = container.resolve<InstantiationCounter>();
 
 
                 if(InstantiationCounter.InstantiationCount != 1)

@@ -16,12 +16,12 @@ namespace Diva.Tests
         private void IgnoredProperty()
         {
             var builder = new ContainerBuilder();
-            builder.Register<TestClass>()
+            builder.register<TestClass>()
                     .ignore_property("ignore-this");
 
-            var container = builder.Build();
+            var container = builder.build();
             try {
-            var testClass = container.Resolve<TestClass>();
+            var testClass = container.resolve<TestClass>();
             if(testClass == null)
                 fail();
             } catch (ResolveError e) {Test.message(@"ResolveError: $(e.message)"); fail(); }

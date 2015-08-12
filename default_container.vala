@@ -23,28 +23,28 @@ namespace Diva
             this.decorators = decorators;
         }
 
-        public T Resolve<T>()
+        public T resolve<T>()
             throws ResolveError
         {
             var t = typeof(T);
-            return (T) ResolveTyped(t);
+            return (T) resolve_typed(t);
         }
 
-        public Lazy<T> ResolveLazy<T>()
+        public Lazy<T> resolve_lazy<T>()
             throws ResolveError
         {
             var t = typeof(T);
-            return (Lazy<T>) ResolveLazyTyped(t);
+            return (Lazy<T>) resolve_lazy_typed(t);
         }
 
-        public Collection<T> ResolveCollection<T>()
+        public Collection<T> resolve_collection<T>()
             throws ResolveError
         {
             var t = typeof(T);
-            return (Collection<T>) ResolveCollectionTyped(t);
+            return (Collection<T>) resolve_collection_typed(t);
         }
 
-        public Index<TService, TKey> ResolveIndexed<TService, TKey>()
+        public Index<TService, TKey> resolve_indexed<TService, TKey>()
         {
             var t = typeof(TService);
             var tkey = typeof(TKey);
@@ -85,7 +85,7 @@ namespace Diva
             return (T)v.get_pointer;
         }
 
-        internal Object ResolveTyped(Type t)
+        internal Object resolve_typed(Type t)
             throws ResolveError
         {
             CheckForLoop(t);
@@ -93,7 +93,7 @@ namespace Diva
             if(creator == null)
                 throw new ResolveError.UnknownService(@"No component has been registered providing the service $(t.name()).");
             ICreator<Object> realCreator = creator;
-            var o = realCreator.Create(this);
+            var o = realCreator.create(this);
             var decoratorCreators = decorators[t];
             if(decoratorCreators == null)
             {
@@ -105,13 +105,13 @@ namespace Diva
             foreach(var decoratorCreator in decoratorCreators)
             {
                 IDecoratorCreator<Object> realDecoratorCreator = decoratorCreator;
-                decorated = realDecoratorCreator.CreateDecorator(this, decorated);
+                decorated = realDecoratorCreator.create_decorator(this, decorated);
             }
             FinishedCreating(t);
             return decorated;
         }
 
-        internal Lazy ResolveLazyTyped(Type t)
+        internal Lazy resolve_lazy_typed(Type t)
             throws ResolveError
         {
             CheckForLoop(t);
@@ -120,12 +120,12 @@ namespace Diva
                 throw new ResolveError.UnknownService(@"No component has been registered providing the service $(t.name()).");
             ICreator<Object> realCreator = creator;
 
-            var o = realCreator.CreateLazy(this);
+            var o = realCreator.create_lazy(this);
             FinishedCreating(t);
             return o;
         }
 
-        internal Collection ResolveCollectionTyped(Type t)
+        internal Collection resolve_collection_typed(Type t)
             throws ResolveError
         {
             CheckForLoop(t);
@@ -135,14 +135,14 @@ namespace Diva
             {
                 ICreator<Object> realCreator = creator;
 
-                var o = realCreator.Create(this);
+                var o = realCreator.create(this);
                 collection.add(o);
             }
             FinishedCreating(t);
             return collection;
         }
 
-        internal Index ResolveIndexTyped(Type tService, Type tKey)
+        internal Index resolve_index_typed(Type tService, Type tKey)
             throws ResolveError
         {
             var keysForService = keyedServices[tService];

@@ -42,13 +42,13 @@ namespace Diva
                 this.instance = instance;
             }
 
-            public T Create(ComponentContext context)
+            public T create(ComponentContext context)
                 throws ResolveError
             {
                 return instance;
             }
 
-            public Lazy<T> CreateLazy(ComponentContext context)
+            public Lazy<T> create_lazy(ComponentContext context)
                 throws ResolveError
             {
                 return new Lazy<T>.from_value(instance);

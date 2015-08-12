@@ -20,18 +20,18 @@ namespace Diva.Tests
             InstantiationCounter.ResetCount();
 
             var builder = new ContainerBuilder();
-            builder.Register<InstantiationCounter>();
-            var container = builder.Build();
-             
+            builder.register<InstantiationCounter>();
+            var container = builder.build();
+
             try {
-                Lazy<InstantiationCounter> resolved = container.ResolveLazy<InstantiationCounter>();
-            
+                Lazy<InstantiationCounter> resolved = container.resolve_lazy<InstantiationCounter>();
+
                 if(InstantiationCounter.InstantiationCount != 0)
                 {
                     Test.message(@"Should not have created the object yet. $(InstantiationCounter.InstantiationCount).");
                     fail();
                 }
-               
+
                 var counter = resolved.value;
                 counter = resolved.value;
                 if(InstantiationCounter.InstantiationCount != 1)
@@ -47,21 +47,21 @@ namespace Diva.Tests
             InstantiationCounter.ResetCount();
 
             var builder = new ContainerBuilder();
-            builder.Register<RequiresLazy>();
-            builder.Register<InstantiationCounter>();
-            var container = builder.Build();
-             
+            builder.register<RequiresLazy>();
+            builder.register<InstantiationCounter>();
+            var container = builder.build();
+
             try {
-                var resolved = container.Resolve<RequiresLazy>();
-            
+                var resolved = container.resolve<RequiresLazy>();
+
                 if(InstantiationCounter.InstantiationCount != 0)
                 {
                     Test.message(@"Should not have created the object yet. $(InstantiationCounter.InstantiationCount).");
                     fail();
                 }
-                
+
                 resolved.UseLazy();
-                
+
                 if(InstantiationCounter.InstantiationCount != 1)
                 {
                     Test.message(@"Should have created the counter once, actually: $(InstantiationCounter.InstantiationCount).");
@@ -69,7 +69,7 @@ namespace Diva.Tests
                 }
 
             } catch (ResolveError e) {Test.message(@"ResolveError: $(e.message)"); fail(); }
-        }       
+        }
 
         private class InstantiationCounter : Object
         {
@@ -79,7 +79,7 @@ namespace Diva.Tests
 
             construct {InstantiationCount++;}
         }
-        
+
         private class RequiresLazy : Object
         {
             static construct
@@ -87,9 +87,9 @@ namespace Diva.Tests
                 var cls = (ObjectClass)typeof(RequiresLazy).class_ref();
                 SetLazyInjection<InstantiationCounter>(cls, "Lazy");
             }
-            
+
             public Lazy<InstantiationCounter> Lazy {construct; private get;}
-            
+
             public void UseLazy()
             {
                 var c = Lazy.value;

@@ -42,13 +42,13 @@ namespace Diva
                 this.registration = registration;
             }
 
-            public T CreateDecorator(ComponentContext context, T inner)
+            public T create_decorator(ComponentContext context, T inner)
                 throws ResolveError
             {
-                return Create(context);
+                return create(context);
             }
 
-            public T Create(ComponentContext context)
+            public T create(ComponentContext context)
                 throws ResolveError
             {
                 try
@@ -61,10 +61,10 @@ namespace Diva
                 }
             }
 
-            public Lazy<T> CreateLazy(ComponentContext context)
+            public Lazy<T> create_lazy(ComponentContext context)
                 throws ResolveError
             {
-                return new Lazy<T>(() => {return Create(context);});
+                return new Lazy<T>(() => {return create(context);});
             }
         }
     }

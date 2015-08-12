@@ -18,7 +18,7 @@ namespace Diva
             var creator = keyedCreators[key];
             if(creator == null)
                 return null;
-            return creator.Create(context);
+            return creator.create(context);
         }
     }
 
@@ -54,7 +54,7 @@ namespace Diva
             var creator = keyedCreators[key];
             if(creator == null)
                 return null;
-            return creator.Create(context);
+            return creator.create(context);
         }
 
         private T ExtractKey<T>(Value v)

@@ -19,13 +19,13 @@ namespace Diva.Tests
         private void ResolveDirectly()
         {
             var builder = new ContainerBuilder();
-            builder.Register<ServiceA>().as<InterfaceA>();
-            builder.Register<ServiceB>().as<InterfaceA>();
-            var container = builder.Build();
+            builder.register<ServiceA>().as<InterfaceA>();
+            builder.register<ServiceB>().as<InterfaceA>();
+            var container = builder.build();
 
             try
             {
-                var resolved = container.ResolveCollection<InterfaceA>();
+                var resolved = container.resolve_collection<InterfaceA>();
                 if(resolved.size != 2)
                 {
                     stderr.printf(@"Expected to get 2 items, actually $(resolved.size).\n");
@@ -51,13 +51,13 @@ namespace Diva.Tests
         private void ResolveAsComponent()
         {
             var builder = new ContainerBuilder();
-            builder.Register<ServiceA>().as<InterfaceA>();
-            builder.Register<ServiceB>().as<InterfaceA>();
-            builder.Register<RequiresCollection>();
-            var container = builder.Build();
+            builder.register<ServiceA>().as<InterfaceA>();
+            builder.register<ServiceB>().as<InterfaceA>();
+            builder.register<RequiresCollection>();
+            var container = builder.build();
 
             try {
-                var resolved = container.Resolve<RequiresCollection>();
+                var resolved = container.resolve<RequiresCollection>();
                 var a = resolved.Collection.to_array()[0];
                 if(a == null)
                     fail();
@@ -73,11 +73,11 @@ namespace Diva.Tests
         private void CanBeEmpty()
         {
             var builder = new ContainerBuilder();
-            builder.Register<RequiresCollection>();
-            var container = builder.Build();
+            builder.register<RequiresCollection>();
+            var container = builder.build();
 
             try {
-                var resolved = container.Resolve<RequiresCollection>();
+                var resolved = container.resolve<RequiresCollection>();
                 if(resolved.Collection.size != 0)
                 {
                     fail();

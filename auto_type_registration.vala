@@ -40,7 +40,7 @@ namespace Diva
                 this.ignoredProperties = ignoredProperties;
             }
 
-            public T Create(ComponentContext context)
+            public T create(ComponentContext context)
                 throws ResolveError
             {
                 var cls = typeof(T).class_ref();
@@ -64,7 +64,7 @@ namespace Diva
                             if(IsSpecial(t, out func))
                                 func(prop, context, ref p);
                             else
-                                p.value.set_object(context.ResolveTyped(t));
+                                p.value.set_object(context.resolve_typed(t));
                         }
                         catch(ResolveError e)
                         {
@@ -78,7 +78,7 @@ namespace Diva
                 return (T) Object.newv(typeof(T), params);
             }
 
-            public T CreateDecorator(ComponentContext context, T inner)
+            public T create_decorator(ComponentContext context, T inner)
                 throws ResolveError
             {
                 var cls = typeof(T).class_ref();
@@ -103,7 +103,7 @@ namespace Diva
                             else if(IsSpecial(t, out func))
                                 func(prop, context, ref p);
                             else
-                                p.value.set_object(context.ResolveTyped(t));
+                                p.value.set_object(context.resolve_typed(t));
                         }
                         catch(ResolveError e)
                         {
@@ -117,9 +117,9 @@ namespace Diva
                 return (T) Object.newv(typeof(T), params);
             }
 
-            public Lazy<T> CreateLazy(ComponentContext context)
+            public Lazy<T> create_lazy(ComponentContext context)
             {
-                return new Lazy<T>(() => { return Create(context); });
+                return new Lazy<T>(() => { return create(context); });
             }
 
             private bool CanInjectProperty(ParamSpec p)
@@ -163,7 +163,7 @@ namespace Diva
                 Type t = lazyData.DepType;
 
 
-                param.value.set_instance(context.ResolveLazyTyped(t));
+                param.value.set_instance(context.resolve_lazy_typed(t));
             }
 
             private void CollectionCreator(ParamSpec p, ComponentContext context, ref Parameter param)
@@ -176,7 +176,7 @@ namespace Diva
                 Type t = lazyData.DepType;
 
 
-                param.value.set_instance(context.ResolveCollectionTyped(t));
+                param.value.set_instance(context.resolve_collection_typed(t));
             }
 
             private void IndexCreator(ParamSpec p, ComponentContext context, ref Parameter param)
@@ -186,7 +186,7 @@ namespace Diva
                 if(indexData == null)
                      throw new ResolveError.BadDeclaration("To support injection of index properties, call SetIndexedInjection in your static construct block.");
 
-                param.value.set_instance(context.ResolveIndexTyped(indexData.Dependency, indexData.Key));
+                param.value.set_instance(context.resolve_index_typed(indexData.Dependency, indexData.Key));
             }
         }
     }

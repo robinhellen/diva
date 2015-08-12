@@ -16,13 +16,13 @@ namespace Diva.Tests
         private void CanResolveDecorator()
         {
             var builder = new ContainerBuilder();
-            builder.Register<TestClass>().as<TestInterface>();
-            builder.Register<TestDecorator>().as_decorator<TestInterface>();
+            builder.register<TestClass>().as<TestInterface>();
+            builder.register<TestDecorator>().as_decorator<TestInterface>();
 
-            var container = builder.Build();
+            var container = builder.build();
             try
             {
-                var testClass = container.Resolve<TestInterface>();
+                var testClass = container.resolve<TestInterface>();
                 var decorator = testClass as TestDecorator;
                 if(decorator == null)
                     {fail(); return;}
