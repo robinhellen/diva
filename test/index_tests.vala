@@ -124,7 +124,7 @@ namespace Diva.Tests
             static construct
             {
                 var cls = (ObjectClass)typeof(RequiresIndex).class_ref();
-                SetIndexedInjection<ServiceEnum, InterfaceA>(cls, "Indexed");
+                set_indexed_injection<ServiceEnum, InterfaceA>(cls, "Indexed");
             }
 
             public Index<InterfaceA, ServiceEnum> Indexed {construct; get;}
@@ -135,7 +135,7 @@ namespace Diva.Tests
             static construct
             {
                 var cls = (ObjectClass)typeof(RequiresStringIndex).class_ref();
-                SetIndexedInjection<string, InterfaceA>(cls, "Indexed");
+                set_indexed_injection<string, InterfaceA>(cls, "Indexed");
             }
 
             public Index<InterfaceA, string> Indexed {construct; get;}

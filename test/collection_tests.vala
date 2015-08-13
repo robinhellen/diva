@@ -96,7 +96,7 @@ namespace Diva.Tests
             static construct
             {
                 var cls = (ObjectClass)typeof(RequiresCollection).class_ref();
-                SetCollectionInjection<InterfaceA>(cls, "Collection");
+                set_collection_injection<InterfaceA>(cls, "Collection");
             }
 
             public Collection<InterfaceA> Collection {construct; get;}

@@ -85,7 +85,7 @@ namespace Diva.Tests
             static construct
             {
                 var cls = (ObjectClass)typeof(RequiresLazy).class_ref();
-                SetLazyInjection<InstantiationCounter>(cls, "Lazy");
+                set_lazy_injection<InstantiationCounter>(cls, "Lazy");
             }
 
             public Lazy<InstantiationCounter> Lazy {construct; private get;}

@@ -157,10 +157,10 @@ namespace Diva
                 throws ResolveError
             {
                 // get the type
-                var lazy_data = (LazyPropertyData)p.get_qdata(LazyPropertyData.Q);
+                var lazy_data = (LazyPropertyData)p.get_qdata(LazyPropertyData.q);
                 if(lazy_data == null)
                     throw new ResolveError.BadDeclaration("To support injection of lazy properties, call SetLazyInjection in your static construct block.");
-                Type t = lazy_data.DepType;
+                Type t = lazy_data.dep_type;
 
 
                 param.value.set_instance(context.resolve_lazy_typed(t));
@@ -170,10 +170,10 @@ namespace Diva
                 throws ResolveError
             {
                 // get the type
-                var collection_data = (CollectionPropertyData)p.get_qdata(CollectionPropertyData.Q);
+                var collection_data = (CollectionPropertyData)p.get_qdata(CollectionPropertyData.q);
                 if(collection_data == null)
                     throw new ResolveError.BadDeclaration("To support injection of collection properties, call SetCollectionInjection in your static construct block.");
-                Type t = collection_data.DepType;
+                Type t = collection_data.dep_type;
 
 
                 param.value.set_instance(context.resolve_collection_typed(t));
@@ -182,11 +182,11 @@ namespace Diva
             private void index_creator(ParamSpec p, ComponentContext context, ref Parameter param)
                 throws ResolveError
             {
-                var index_data = (IndexPropertyData)p.get_qdata(IndexPropertyData.Q);
+                var index_data = (IndexPropertyData)p.get_qdata(IndexPropertyData.q);
                 if(index_data == null)
                      throw new ResolveError.BadDeclaration("To support injection of index properties, call SetIndexedInjection in your static construct block.");
 
-                param.value.set_instance(context.resolve_index_typed(index_data.Dependency, index_data.Key));
+                param.value.set_instance(context.resolve_index_typed(index_data.dependency, index_data.key));
             }
         }
     }
