@@ -15,12 +15,12 @@ namespace Diva
 
         public ICreator<T> get_creator()
         {
-            return creation_strategy.GetFinalCreator<T>(new AutoTypeCreator<T>(this, ignored_properties));
+            return creation_strategy.get_final_creator<T>(new AutoTypeCreator<T>(this, ignored_properties));
         }
 
         public IDecoratorCreator<T> get_decorator_creator()
         {
-            return creation_strategy.GetFinalDecoratorCreator<T>(new AutoTypeCreator<T>(this, ignored_properties));
+            return creation_strategy.get_final_decorator_creator<T>(new AutoTypeCreator<T>(this, ignored_properties));
         }
 
         public IRegistrationContext<T> ignore_property(string property)

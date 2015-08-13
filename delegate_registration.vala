@@ -20,12 +20,12 @@ namespace Diva
 
         public ICreator<T> get_creator()
         {
-            return creation_strategy.GetFinalCreator<T>(new DelegateCreator<T>(this));
+            return creation_strategy.get_final_creator<T>(new DelegateCreator<T>(this));
         }
 
         public IDecoratorCreator<T> get_decorator_creator()
         {
-            return creation_strategy.GetFinalDecoratorCreator<T>(new DelegateCreator<T>(this));
+            return creation_strategy.get_final_decorator_creator<T>(new DelegateCreator<T>(this));
         }
 
         public IRegistrationContext<T> ignore_property(string property)

@@ -22,7 +22,7 @@ namespace Diva
 
         public IRegistrationContext<T> single_instance()
         {
-            creation_strategy = CreationStrategy.SingleInstance;
+            creation_strategy = CreationStrategy.SINGLE_INSTANCE;
             return this;
         }
 
