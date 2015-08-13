@@ -4,7 +4,7 @@ namespace Diva
 {
     internal class DelegateRegistrationContext<T> : IRegistrationContext<T>, Object
     {
-        private ResolveFunc<T> resolveFunc;
+        private ResolveFunc<T> resolve_func;
         private Collection<ServiceRegistration> _services = new LinkedList<ServiceRegistration>();
         private Collection<Type> _decorations = new LinkedList<Type>();
 
@@ -12,7 +12,7 @@ namespace Diva
 
         public DelegateRegistrationContext(owned ResolveFunc<T> resolver)
         {
-            resolveFunc = (owned) resolver;
+            resolve_func = (owned) resolver;
         }
 
         internal Collection<ServiceRegistration> services {get{return _services;}}
@@ -53,7 +53,7 @@ namespace Diva
             {
                 try
                 {
-                    return registration.resolveFunc(context);
+                    return registration.resolve_func(context);
                 }
                 catch(ResolveError e)
                 {

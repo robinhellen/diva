@@ -11,33 +11,33 @@ namespace Diva
         internal Collection<Type> decorations {get{return _decorations;}}
         internal CreationStrategy creation_strategy {get; set;}
 
-        private Collection<string> ignoredProperties = new ArrayList<string>();
+        private Collection<string> ignored_properties = new ArrayList<string>();
 
         public ICreator<T> get_creator()
         {
-            return creation_strategy.GetFinalCreator<T>(new AutoTypeCreator<T>(this, ignoredProperties));
+            return creation_strategy.GetFinalCreator<T>(new AutoTypeCreator<T>(this, ignored_properties));
         }
 
         public IDecoratorCreator<T> get_decorator_creator()
         {
-            return creation_strategy.GetFinalDecoratorCreator<T>(new AutoTypeCreator<T>(this, ignoredProperties));
+            return creation_strategy.GetFinalDecoratorCreator<T>(new AutoTypeCreator<T>(this, ignored_properties));
         }
 
         public IRegistrationContext<T> ignore_property(string property)
         {
-            ignoredProperties.add(property);
+            ignored_properties.add(property);
             return this;
         }
 
         private class AutoTypeCreator<T> : Object, ICreator<T>, IDecoratorCreator<T>
         {
             private AutoTypeRegistration<T> registration;
-            private Collection<string> ignoredProperties;
+            private Collection<string> ignored_properties;
 
-            public AutoTypeCreator(AutoTypeRegistration<T> registration, Collection<string> ignoredProperties)
+            public AutoTypeCreator(AutoTypeRegistration<T> registration, Collection<string> ignored_properties)
             {
                 this.registration = registration;
-                this.ignoredProperties = ignoredProperties;
+                this.ignored_properties = ignored_properties;
             }
 
             public T create(ComponentContext context)
@@ -48,9 +48,9 @@ namespace Diva
                 var params = new Parameter[] {};
                 foreach(var prop in properties)
                 {
-                    if(ignoredProperties.contains(prop.name))
+                    if(ignored_properties.contains(prop.name))
                         continue;
-                    if(CanInjectProperty(prop))
+                    if(can_inject_property(prop))
                     {
                         var p = Parameter();
                         var t = prop.value_type;
@@ -61,7 +61,7 @@ namespace Diva
                         try
                         {
                             CreatorFunc func;
-                            if(IsSpecial(t, out func))
+                            if(is_special(t, out func))
                                 func(prop, context, ref p);
                             else
                                 p.value.set_object(context.resolve_typed(t));
@@ -86,9 +86,9 @@ namespace Diva
                 var params = new Parameter[] {};
                 foreach(var prop in properties)
                 {
-                    if(ignoredProperties.contains(prop.name))
+                    if(ignored_properties.contains(prop.name))
                         continue;
-                    if(CanInjectProperty(prop))
+                    if(can_inject_property(prop))
                     {
                         var p = Parameter();
                         var t = prop.value_type;
@@ -100,7 +100,7 @@ namespace Diva
                             CreatorFunc func;
                             if(prop.name == "Inner")
                                 p.value.set_object((Object)inner);
-                            else if(IsSpecial(t, out func))
+                            else if(is_special(t, out func))
                                 func(prop, context, ref p);
                             else
                                 p.value.set_object(context.resolve_typed(t));
@@ -122,28 +122,28 @@ namespace Diva
                 return new Lazy<T>(() => { return create(context); });
             }
 
-            private bool CanInjectProperty(ParamSpec p)
+            private bool can_inject_property(ParamSpec p)
             {
                 var flags = p.flags;
                 return (  ((flags & ParamFlags.CONSTRUCT) == ParamFlags.CONSTRUCT)
                   || ((flags & ParamFlags.CONSTRUCT_ONLY) == ParamFlags.CONSTRUCT_ONLY));
             }
 
-            private bool IsSpecial(Type t, out CreatorFunc func)
+            private bool is_special(Type t, out CreatorFunc func)
             {
                 if(t == typeof(Lazy))
                 {
-                    func = LazyCreator;
+                    func = lazy_creator;
                     return true;
                 }
                 if(t == typeof(Index))
                 {
-                    func = IndexCreator;
+                    func = index_creator;
                     return true;
                 }
                 if(t == typeof(Collection))
                 {
-                    func = CollectionCreator;
+                    func = collection_creator;
                     return true;
                 }
                 func = null;
@@ -153,40 +153,40 @@ namespace Diva
             private delegate void CreatorFunc(ParamSpec p, ComponentContext context, ref Parameter param)
                 throws ResolveError;
 
-            private void LazyCreator(ParamSpec p, ComponentContext context, ref Parameter param)
+            private void lazy_creator(ParamSpec p, ComponentContext context, ref Parameter param)
                 throws ResolveError
             {
                 // get the type
-                var lazyData = (LazyPropertyData)p.get_qdata(LazyPropertyData.Q);
-                if(lazyData == null)
+                var lazy_data = (LazyPropertyData)p.get_qdata(LazyPropertyData.Q);
+                if(lazy_data == null)
                     throw new ResolveError.BadDeclaration("To support injection of lazy properties, call SetLazyInjection in your static construct block.");
-                Type t = lazyData.DepType;
+                Type t = lazy_data.DepType;
 
 
                 param.value.set_instance(context.resolve_lazy_typed(t));
             }
 
-            private void CollectionCreator(ParamSpec p, ComponentContext context, ref Parameter param)
+            private void collection_creator(ParamSpec p, ComponentContext context, ref Parameter param)
                 throws ResolveError
             {
                 // get the type
-                var lazyData = (CollectionPropertyData)p.get_qdata(CollectionPropertyData.Q);
-                if(lazyData == null)
+                var collection_data = (CollectionPropertyData)p.get_qdata(CollectionPropertyData.Q);
+                if(collection_data == null)
                     throw new ResolveError.BadDeclaration("To support injection of collection properties, call SetCollectionInjection in your static construct block.");
-                Type t = lazyData.DepType;
+                Type t = collection_data.DepType;
 
 
                 param.value.set_instance(context.resolve_collection_typed(t));
             }
 
-            private void IndexCreator(ParamSpec p, ComponentContext context, ref Parameter param)
+            private void index_creator(ParamSpec p, ComponentContext context, ref Parameter param)
                 throws ResolveError
             {
-                var indexData = (IndexPropertyData)p.get_qdata(IndexPropertyData.Q);
-                if(indexData == null)
+                var index_data = (IndexPropertyData)p.get_qdata(IndexPropertyData.Q);
+                if(index_data == null)
                      throw new ResolveError.BadDeclaration("To support injection of index properties, call SetIndexedInjection in your static construct block.");
 
-                param.value.set_instance(context.resolve_index_typed(indexData.Dependency, indexData.Key));
+                param.value.set_instance(context.resolve_index_typed(index_data.Dependency, index_data.Key));
             }
         }
     }
