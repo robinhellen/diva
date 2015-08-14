@@ -43,39 +43,7 @@ namespace Diva
             public T create(ComponentContext context)
                 throws ResolveError
             {
-                var cls = typeof(T).class_ref();
-                var properties = ((ObjectClass)cls).list_properties();
-                var params = new Parameter[] {};
-                foreach(var prop in properties)
-                {
-                    if(ignored_properties.contains(prop.name))
-                        continue;
-                    if(can_inject_property(prop))
-                    {
-                        var p = Parameter();
-                        var t = prop.value_type;
-                        p.name = prop.name;
-
-                        p.value = Value(t);
-
-                        try
-                        {
-                            CreatorFunc func;
-                            if(is_special(t, out func))
-                                func(prop, context, ref p);
-                            else
-                                p.value.set_object(context.resolve_typed(t));
-                        }
-                        catch(ResolveError e)
-                        {
-                            throw new ResolveError.InnerError(@"Cannot satify parameter $(prop.name) [$(t.name())]: $(e.message)");
-                        }
-
-                        params += p;
-
-                    }
-                }
-                return (T) Object.newv(typeof(T), params);
+                return create_lazy(context).value;
             }
 
             public T create_decorator(ComponentContext context, T inner)
@@ -155,12 +123,23 @@ namespace Diva
                             var parameters = new Parameter[] {};
                             foreach(var prop in props)
                             {
+                                if(ignored_properties.contains(prop.name))
+                                    continue;
                                 var p = Parameter();
                                 var t = prop.value_type;
                                 p.name = prop.name;
                                 p.value = Value(t);
                                 
-                                p.value.set_object(params[prop.name].value);                                
+                                if(t == typeof(Lazy))
+                                {
+                                    p.value.set_instance(params[prop.name].value);
+                                }
+                                else
+                                {
+                                    p.value.set_object(params[prop.name].value);
+                                }
+                                
+                                parameters += p;
                             }
                             return (T) Object.newv(typeof(T), parameters);                            
                         });
