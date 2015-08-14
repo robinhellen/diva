@@ -70,9 +70,15 @@ namespace Diva.Tests
             try {
             var testClassWithDependencies = container.resolve<TestClassWithDependencies>();
             if(testClassWithDependencies == null)
+            {
+                Test.message("The thing resolved was null.");
                 fail();
+            }
             if(testClassWithDependencies.Dependency == null)
+            {
+                Test.message("The dependency was not injected.");
                 fail();
+            }
             } catch (ResolveError e) {Test.message(@"ResolveError: $(e.message)"); fail(); }
         }
 
