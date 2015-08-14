@@ -6,7 +6,6 @@ namespace Diva
     public interface IRegistrationContext<T> : Object
     {
         internal abstract ICreator get_creator();
-        internal abstract IDecoratorCreator get_decorator_creator();
 
         public Type component_type {get {return typeof(T);}}
 

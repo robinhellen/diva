@@ -42,7 +42,7 @@ namespace Diva
             var services = new HashMap<Type, ICreator>();
             var all_services = new HashMultiMap<Type, ICreator>();
             var keyed_services = new HashMap<Type, Map<Value?, ICreator>>();
-            var decorators = new HashMultiMap<Type, IDecoratorCreator>();
+            var decorators = new HashMultiMap<Type, ICreator>();
             foreach(var registration in registrations)
             {
                 var creator = registration.get_creator();
@@ -65,7 +65,7 @@ namespace Diva
                 }
                 foreach(var decoration in registration.decorations)
                 {
-                    decorators[decoration] = registration.get_decorator_creator();
+                    decorators[decoration] = registration.get_creator();
                 }
             }
 
@@ -112,15 +112,6 @@ namespace Diva
 
         public abstract Lazy<T> create_lazy(ComponentContext context)
             throws ResolveError;
-    }
-
-    internal interface IDecoratorCreator<T> : Object
-    {
-        public abstract T create_decorator(ComponentContext context, T inner)
-            throws ResolveError;
-
-        /*public abstract Lazy<T> CreateLazy(ComponentContext context, Lazy<T> inner)
-            throws ResolveError; */
     }
 
     public abstract class Module : Object

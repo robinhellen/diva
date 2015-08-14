@@ -18,18 +18,13 @@ namespace Diva
             return creation_strategy.get_final_creator<T>(new AutoTypeCreator<T>(this, ignored_properties));
         }
 
-        public IDecoratorCreator<T> get_decorator_creator()
-        {
-            return creation_strategy.get_final_decorator_creator<T>(new AutoTypeCreator<T>(this, ignored_properties));
-        }
-
         public IRegistrationContext<T> ignore_property(string property)
         {
             ignored_properties.add(property);
             return this;
         }
 
-        private class AutoTypeCreator<T> : Object, ICreator<T>, IDecoratorCreator<T>
+        private class AutoTypeCreator<T> : Object, ICreator<T>
         {
             private AutoTypeRegistration<T> registration;
             private Collection<string> ignored_properties;
@@ -44,45 +39,6 @@ namespace Diva
                 throws ResolveError
             {
                 return create_lazy(context).value;
-            }
-
-            public T create_decorator(ComponentContext context, T inner)
-                throws ResolveError
-            {
-                var cls = typeof(T).class_ref();
-                var properties = ((ObjectClass)cls).list_properties();
-                var params = new Parameter[] {};
-                foreach(var prop in properties)
-                {
-                    if(ignored_properties.contains(prop.name))
-                        continue;
-                    if(can_inject_property(prop))
-                    {
-                        var p = Parameter();
-                        var t = prop.value_type;
-                        p.name = prop.name;
-                        p.value = Value(t);
-
-                        try
-                        {
-                            CreatorFunc func;
-                            if(prop.name == "Inner")
-                                p.value.set_object((Object)inner);
-                            else if(is_special(t, out func))
-                                func(prop, context, ref p);
-                            else
-                                p.value.set_object(context.resolve_typed(t));
-                        }
-                        catch(ResolveError e)
-                        {
-                            throw new ResolveError.InnerError(@"Cannot satify parameter $(prop.name) [$(t.name())]: $(e.message)");
-                        }
-
-                        params += p;
-
-                    }
-                }
-                return (T) Object.newv(typeof(T), params);
             }
 
             public Lazy<T> create_lazy(ComponentContext context)

@@ -6,7 +6,7 @@ namespace Diva
     {
         private Map<Type, ICreator> services;
         private Map<Type, Map<Value?, ICreator>> keyed_services;
-        private MultiMap<Type, IDecoratorCreator> decorators;
+        private MultiMap<Type, ICreator> decorators;
         private MultiMap<Type, ICreator> all_services;
 
         private Deque<Type> current_creations = new LinkedList<Type>();
@@ -14,7 +14,7 @@ namespace Diva
         public DefaultContainer(Map<Type, ICreator> services,
                                 MultiMap<Type, ICreator> all_services,
                                 Map<Type, Map<Value?, ICreator>> keyed_services,
-                                MultiMap<Type, IDecoratorCreator>? decorators
+                                MultiMap<Type, ICreator>? decorators
                                 )
         {
             this.services = services;
@@ -88,27 +88,7 @@ namespace Diva
         internal Object resolve_typed(Type t)
             throws ResolveError
         {
-            check_for_loop(t);
-            var creator = services[t];
-            if(creator == null)
-                throw new ResolveError.UnknownService(@"No component has been registered providing the service $(t.name()).");
-            ICreator<Object> real_creator = creator;
-            var o = real_creator.create(this);
-            var decorator_creators = decorators[t];
-            if(decorator_creators == null)
-            {
-                finished_creating(t);
-                return o;
-            }
-
-            var decorated = o;
-            foreach(var decorator_creator in decorator_creators)
-            {
-                IDecoratorCreator<Object> real_decorator_creator = decorator_creator;
-                decorated = real_decorator_creator.create_decorator(this, decorated);
-            }
-            finished_creating(t);
-            return decorated;
+            return ((Lazy<Object>)resolve_lazy_typed(t)).value;
         }
 
         internal Lazy resolve_lazy_typed(Type t)
@@ -121,8 +101,18 @@ namespace Diva
             ICreator<Object> real_creator = creator;
 
             var o = real_creator.create_lazy(this);
+            var decorator_creators = decorators[t];
+            var decorated = o;
+            
+            foreach(var decorator_creator in decorator_creators)
+            {
+                var context = new DecoratingComponentContext(this, decorated, t);
+                ICreator<Object> real_decorator_creator = decorator_creator;
+                decorated = real_decorator_creator.create_lazy(context);
+            }           
+            
             finished_creating(t);
-            return o;
+            return decorated;
         }
 
         internal Collection resolve_collection_typed(Type t)
@@ -170,6 +160,46 @@ namespace Diva
             var head = current_creations.poll_head();
             if(head != t)
                 assert_not_reached();
+        }
+        
+        private class DecoratingComponentContext : Object, ComponentContext
+        {
+            private ComponentContext inner_context;
+            private Lazy decorated_object;
+            private Type decorated_type;
+            
+            public DecoratingComponentContext(ComponentContext inner_context, Lazy decorated_object, Type decorated_type)
+            {
+                this.inner_context = inner_context;
+                this.decorated_object = decorated_object;
+                this.decorated_type = decorated_type;
+            }            
+            
+            public Object resolve_typed(Type t)
+                throws ResolveError
+            {
+                return inner_context.resolve_typed(t);
+            }
+
+            public Lazy resolve_lazy_typed(Type t)
+                throws ResolveError
+            {
+                if(t == decorated_type)
+                    return decorated_object;
+                return inner_context.resolve_lazy_typed(t);
+            }
+
+            public Index resolve_index_typed(Type t_service, Type t_key)
+                throws ResolveError
+            {
+                return inner_context.resolve_index_typed(t_service, t_key);
+            }
+
+            public Collection resolve_collection_typed(Type t)
+                throws ResolveError
+            {
+                return inner_context.resolve_collection_typed(t);
+            }
         }
     }
 }

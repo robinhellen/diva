@@ -23,11 +23,6 @@ namespace Diva
             return new InstanceCreator<T>(instance);
         }
 
-        public IDecoratorCreator get_decorator_creator()
-        {
-            assert_not_reached();
-        }
-
         public IRegistrationContext<T> ignore_property(string property)
         {
             return this;

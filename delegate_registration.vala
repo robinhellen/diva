@@ -22,30 +22,19 @@ namespace Diva
         {
             return creation_strategy.get_final_creator<T>(new DelegateCreator<T>(this));
         }
-
-        public IDecoratorCreator<T> get_decorator_creator()
-        {
-            return creation_strategy.get_final_decorator_creator<T>(new DelegateCreator<T>(this));
-        }
-
+        
         public IRegistrationContext<T> ignore_property(string property)
         {
             return this;
         }
 
-        private class DelegateCreator<T> : ICreator<T>, IDecoratorCreator<T>, Object
+        private class DelegateCreator<T> : ICreator<T>, Object
         {
             private DelegateRegistrationContext<T> registration;
 
             public DelegateCreator(DelegateRegistrationContext<T> registration)
             {
                 this.registration = registration;
-            }
-
-            public T create_decorator(ComponentContext context, T inner)
-                throws ResolveError
-            {
-                return create(context);
             }
 
             public T create(ComponentContext context)
