@@ -108,27 +108,6 @@ namespace Diva
                   || ((flags & ParamFlags.CONSTRUCT_ONLY) == ParamFlags.CONSTRUCT_ONLY));
             }
 
-            private bool is_special(Type t, out CreatorFunc func)
-            {
-                if(t == typeof(Lazy))
-                {
-                    func = lazy_creator;
-                    return true;
-                }
-                if(t == typeof(Index))
-                {
-                    func = index_creator;
-                    return true;
-                }
-                if(t == typeof(Collection))
-                {
-                    func = collection_creator;
-                    return true;
-                }
-                func = null;
-                return false;
-            }
-
             private bool is_special_lazy(Type t, out LazyCreatorFunc func)
             {
                 if(t == typeof(Lazy))
@@ -150,48 +129,8 @@ namespace Diva
                 return false;
             }
 
-
-            private delegate void CreatorFunc(ParamSpec p, ComponentContext context, ref Parameter param)
-                throws ResolveError;
-
             private delegate Lazy<Object> LazyCreatorFunc(ParamSpec p, ComponentContext context)
                 throws ResolveError;
-
-            private void lazy_creator(ParamSpec p, ComponentContext context, ref Parameter param)
-                throws ResolveError
-            {
-                // get the type
-                var lazy_data = (LazyPropertyData)p.get_qdata(LazyPropertyData.q);
-                if(lazy_data == null)
-                    throw new ResolveError.BadDeclaration("To support injection of lazy properties, call SetLazyInjection in your static construct block.");
-                Type t = lazy_data.dep_type;
-
-
-                param.value.set_instance(context.resolve_lazy_typed(t));
-            }
-
-            private void collection_creator(ParamSpec p, ComponentContext context, ref Parameter param)
-                throws ResolveError
-            {
-                // get the type
-                var collection_data = (CollectionPropertyData)p.get_qdata(CollectionPropertyData.q);
-                if(collection_data == null)
-                    throw new ResolveError.BadDeclaration("To support injection of collection properties, call SetCollectionInjection in your static construct block.");
-                Type t = collection_data.dep_type;
-
-
-                param.value.set_instance(context.resolve_collection_typed(t));
-            }
-
-            private void index_creator(ParamSpec p, ComponentContext context, ref Parameter param)
-                throws ResolveError
-            {
-                var index_data = (IndexPropertyData)p.get_qdata(IndexPropertyData.q);
-                if(index_data == null)
-                     throw new ResolveError.BadDeclaration("To support injection of index properties, call SetIndexedInjection in your static construct block.");
-
-                param.value.set_instance(context.resolve_index_typed(index_data.dependency, index_data.key));
-            }
             
             private Lazy lazy_lazy_creator(ParamSpec p, ComponentContext context)
                 throws ResolveError
