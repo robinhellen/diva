@@ -23,7 +23,7 @@ namespace Diva
 
     internal class CachingCreator<T> : Object, ICreator<T>
     {
-        private T cachedValue;
+        private Lazy<T> cachedValue;
         private bool has_value = false;
         private ICreator<T> inner;
 
@@ -35,20 +35,18 @@ namespace Diva
         public T create(ComponentContext context)
             throws ResolveError
         {
-            if(!has_value)
-            {
-                cachedValue = inner.create(context);
-                has_value = true;
-            }
-            return cachedValue;
+            return create_lazy(context).value;
         }
 
         public Lazy<T> create_lazy(ComponentContext context)
+            throws ResolveError
         {
-            if(has_value)
-                return new Lazy<T>.from_value(cachedValue);
-
-            return new Lazy<T>(() => {return create(context);});
+            if(!has_value)
+            {
+                cachedValue = inner.create_lazy(context);
+                has_value = true;
+            }
+            return cachedValue;
         }
     }
 }
