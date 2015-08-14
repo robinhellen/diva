@@ -13,6 +13,7 @@ namespace Diva.Tests
 
             add_test("ResolveDirectly", ResolveDirectly);
             add_test("ResolveAsComponent", ResolveAsComponent);
+            add_test("UnresolvableLazysErrorEarly", UnresolvableLazysErrorEarly);
         }
 
         private void ResolveDirectly()
@@ -69,6 +70,22 @@ namespace Diva.Tests
                 }
 
             } catch (ResolveError e) {Test.message(@"ResolveError: $(e.message)"); fail(); }
+        }
+        
+        private void UnresolvableLazysErrorEarly()
+        {            
+            var builder = new ContainerBuilder();
+            builder.register<RequiresLazy>();
+            var container = builder.build();
+
+            try {
+                container.resolve_lazy<RequiresLazy>();
+                
+                Test.message(@"Should not have been able to create a lazy when dependencies are not available.");
+                fail();
+                
+
+            } catch (ResolveError e) {}
         }
 
         private class InstantiationCounter : Object
