@@ -78,9 +78,6 @@ namespace Diva
 
     public interface ComponentContext : Object
     {
-        internal abstract Object resolve_typed(Type t)
-            throws ResolveError;
-
         internal abstract Lazy resolve_lazy_typed(Type t)
             throws ResolveError;
 

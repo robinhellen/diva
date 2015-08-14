@@ -27,7 +27,7 @@ namespace Diva
             throws ResolveError
         {
             var t = typeof(T);
-            return (T) resolve_typed(t);
+            return ((Lazy<T>) resolve_lazy_typed(t)).value;
         }
 
         public Lazy<T> resolve_lazy<T>()
@@ -83,12 +83,6 @@ namespace Diva
                 return s;
             }
             return (T)v.get_pointer;
-        }
-
-        internal Object resolve_typed(Type t)
-            throws ResolveError
-        {
-            return ((Lazy<Object>)resolve_lazy_typed(t)).value;
         }
 
         internal Lazy resolve_lazy_typed(Type t)
@@ -173,12 +167,6 @@ namespace Diva
                 this.inner_context = inner_context;
                 this.decorated_object = decorated_object;
                 this.decorated_type = decorated_type;
-            }            
-            
-            public Object resolve_typed(Type t)
-                throws ResolveError
-            {
-                return inner_context.resolve_typed(t);
             }
 
             public Lazy resolve_lazy_typed(Type t)
