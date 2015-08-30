@@ -18,6 +18,7 @@ namespace Diva.Tests
         rootSuite.add_suite(new DecoratorTests().get_suite());
         rootSuite.add_suite(new CollectionTests().get_suite());
         rootSuite.add_suite(new ModuleTests().get_suite());
+        rootSuite.add_suite(new RegistrationErrors().get_suite());
 
         Test.run();
         return 0;
