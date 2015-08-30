@@ -15,6 +15,7 @@ namespace Diva
         internal abstract CreationStrategy creation_strategy {get; set;}
 
         public IRegistrationContext<T> as<TInterface>()
+            requires(typeof(T).is_a(typeof(TInterface)))
         {
             add_service_registration(typeof(TInterface));
             return this;
