@@ -28,6 +28,7 @@ namespace Diva
         }
 
         public IRegistrationContext<T> keyed<TService, TKey>(TKey key)
+            requires(typeof(T).is_a(typeof(TService)))
         {
             var t = typeof(TKey);
             var key_value = Value(t);
@@ -42,6 +43,7 @@ namespace Diva
         }
 
         public IRegistrationContext<T> as_decorator<TService>()
+            requires(typeof(T).is_a(typeof(TService)))
         {
             decorations.add(typeof(TService));
             return this;
