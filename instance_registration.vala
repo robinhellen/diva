@@ -18,17 +18,17 @@ namespace Diva
             this.instance = instance;
         }
 
-        public ICreator GetCreator()
+        public ICreator get_creator()
         {
             return new InstanceCreator<T>(instance);
         }
 
-        public IDecoratorCreator GetDecoratorCreator()
+        public IDecoratorCreator get_decorator_creator()
         {
             assert_not_reached();
         }
 
-        public IRegistrationContext<T> IgnoreProperty(string property)
+        public IRegistrationContext<T> ignore_property(string property)
         {
             return this;
         }
@@ -42,13 +42,13 @@ namespace Diva
                 this.instance = instance;
             }
 
-            public T Create(ComponentContext context)
+            public T create(ComponentContext context)
                 throws ResolveError
             {
                 return instance;
             }
 
-            public Lazy<T> CreateLazy(ComponentContext context)
+            public Lazy<T> create_lazy(ComponentContext context)
                 throws ResolveError
             {
                 return new Lazy<T>.from_value(instance);

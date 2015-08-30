@@ -11,23 +11,23 @@ namespace Diva.Tests
             base("ErrorTests");
             add_test("ErrorsOnPrimitiveCycle", PrimitiveCycle);
         }
-        
-        private void PrimitiveCycle()
-        {            
-            var builder = new ContainerBuilder();
-            builder.Register<TestClass>();
 
-            var container = builder.Build();
+        private void PrimitiveCycle()
+        {
+            var builder = new ContainerBuilder();
+            builder.register<TestClass>();
+
+            var container = builder.build();
             try {
-                var testClass = container.Resolve<TestClass>();
+                var testClass = container.resolve<TestClass>();
                 fail();
-            } 
-            catch (ResolveError e) 
+            }
+            catch (ResolveError e)
             {
-                Test.message(@"ResolveError: $(e.message)"); 
+                Test.message(@"ResolveError: $(e.message)");
             }
         }
-        
+
         private class TestClass : Object
         {
             public TestClass Recursive {get; construct;}

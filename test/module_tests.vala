@@ -15,11 +15,11 @@ namespace Diva.Tests
         private void SimpleResolve()
         {
             var builder = new ContainerBuilder();
-            builder.RegisterModule<SimpleModule>();
+            builder.register_module<SimpleModule>();
 
-            var container = builder.Build();
+            var container = builder.build();
             try {
-            var testClass = container.Resolve<TestClass>();
+            var testClass = container.resolve<TestClass>();
             if(testClass == null)
                 fail();
             } catch (ResolveError e) {Test.message(@"ResolveError: $(e.message)"); fail(); }
@@ -27,9 +27,9 @@ namespace Diva.Tests
 
         private class SimpleModule : Module
         {
-            public override void Load(ContainerBuilder builder)
+            public override void load(ContainerBuilder builder)
             {
-                builder.Register<TestClass>();
+                builder.register<TestClass>();
             }
         }
 
