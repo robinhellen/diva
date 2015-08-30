@@ -45,27 +45,28 @@ namespace Diva
         }
 
         public Index<TService, TKey> resolve_indexed<TService, TKey>()
+            throws ResolveError
         {
             var t = typeof(TService);
             var tkey = typeof(TKey);
             var keys_for_service = keyed_services[t];
-            Map<TKey, ICreator> keyed_creators;
+            Map<TKey, Lazy<TService>> keyed_creators;
             if(tkey == typeof(string))
             {
-                keyed_creators = new HashMap<TKey, ICreator<TService>>(x => str_hash((string) x), (x, y) => str_equal((string)x, (string)y));
+                keyed_creators = new HashMap<TKey, Lazy<TService>>(x => str_hash((string) x), (x, y) => str_equal((string)x, (string)y));
             }
             else
             {
-                keyed_creators = new HashMap<TKey, ICreator<TService>>();
+                keyed_creators = new HashMap<TKey, Lazy<TService>>();
             }
 
             foreach(var v in keys_for_service.entries)
             {
                 if(v.key.type() != tkey)
                     continue;
-                keyed_creators[extract_key<TKey>(v.key)] = v.value;
+                keyed_creators[extract_key<TKey>(v.key)] = v.value.create_lazy(this);
             }
-            var index = new CreatorIndex<TService, TKey>(keyed_creators, this);
+            var index = new CreatorIndex<TService, TKey>(keyed_creators);
             return index;
         }
 
@@ -134,9 +135,9 @@ namespace Diva
             var index = (CreatorTypedIndex)Object.new(typeof(CreatorTypedIndex),
                 tkey_type: t_key,
                 tservice_type: t_service,
-                context: this,
                 keysForService: keys_for_service
             );
+            index.Initialize(this);
             return index;
         }
 
