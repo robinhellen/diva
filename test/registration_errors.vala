@@ -8,6 +8,8 @@ namespace Diva.Tests
         {
             base("Registration Errors");
             add_test("ErrorIfRegisteredAsInterfaceNotImplemented", ErrorIfRegisteredAsInterfaceNotImplemented);
+            add_test("ErrorIfRegisteredAsDecoratorForInterfaceNotImplemented", ErrorIfRegisteredAsDecoratorForInterfaceNotImplemented);
+            add_test("ErrorIfRegisteredKeyedForInterfaceNotImplemented", ErrorIfRegisteredKeyedForInterfaceNotImplemented);
         }
 
         private void ErrorIfRegisteredAsInterfaceNotImplemented()
@@ -16,6 +18,22 @@ namespace Diva.Tests
             var reg = builder.register<NoInterface>();
 
             assert_traps(() => reg.as<TestInterface>());
+        }
+
+        private void ErrorIfRegisteredAsDecoratorForInterfaceNotImplemented()
+        {
+            var builder = new ContainerBuilder();
+            var reg = builder.register<NoInterface>();
+
+            assert_traps(() => reg.as_decorator<TestInterface>());
+        }
+
+        private void ErrorIfRegisteredKeyedForInterfaceNotImplemented()
+        {
+            var builder = new ContainerBuilder();
+            var reg = builder.register<NoInterface>();
+
+            assert_traps(() => reg.keyed<TestInterface, string>("foo"));
         }
 
         private class NoInterface {}
