@@ -6,7 +6,7 @@ TEST_SOURCES = $(wildcard test/*.vala)
 TEST_EXECUTABLE_NAME = diva_test
 LIBRARY_NAME = diva
 
-VALAC=valac-0.26
+VALAC=valac-0.28
 
 COMMON_C_OPTIONS= -w
 VALA_COMMON_OPTIONS= $(foreach opt, $(COMMON_C_OPTIONS), -X $(opt)) -g
