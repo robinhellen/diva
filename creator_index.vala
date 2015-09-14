@@ -2,7 +2,7 @@ using Gee;
 
 namespace Diva
 {
-    public class CreatorIndex<TService, TKey>: Object, Index<TService, TKey>
+    internal class CreatorIndex<TService, TKey>: Object, Index<TService, TKey>
     {
         public CreatorIndex(Map<TKey, ICreator<TService>> keyedCreators, ComponentContext context)
         {
@@ -18,11 +18,11 @@ namespace Diva
             var creator = keyedCreators[key];
             if(creator == null)
                 return null;
-            return creator.Create(context);
+            return creator.create(context);
         }
     }
 
-    public class CreatorTypedIndex<TService, TKey>: Object, Index<TService, TKey>
+    internal class CreatorTypedIndex<TService, TKey>: Object, Index<TService, TKey>
     {
         private Map<TKey, ICreator<TService>> keyedCreators {set; get;}
         public ComponentContext context {construct set; private get;}
@@ -54,7 +54,7 @@ namespace Diva
             var creator = keyedCreators[key];
             if(creator == null)
                 return null;
-            return creator.Create(context);
+            return creator.create(context);
         }
 
         private T ExtractKey<T>(Value v)

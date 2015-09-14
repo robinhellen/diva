@@ -5,73 +5,76 @@ namespace Diva
     [GenericAccessors]
     public interface IRegistrationContext<T> : Object
     {
-        public abstract ICreator GetCreator();
-        public abstract IDecoratorCreator GetDecoratorCreator();
+        internal abstract ICreator get_creator();
+        internal abstract IDecoratorCreator get_decorator_creator();
 
-        public Type Type {get {return typeof(T);}}
+        public Type component_type {get {return typeof(T);}}
 
         internal abstract Collection<ServiceRegistration> services {get;}
         internal abstract Collection<Type> decorations {get;}
         internal abstract CreationStrategy creation_strategy {get; set;}
 
-        public IRegistrationContext<T> As<TInterface>()
+        public IRegistrationContext<T> as<TInterface>()
+            requires(typeof(T).is_a(typeof(TInterface)))
         {
-            AddServiceRegistration(typeof(TInterface));
+            add_service_registration(typeof(TInterface));
             return this;
         }
 
-        public IRegistrationContext<T> SingleInstance()
+        public IRegistrationContext<T> single_instance()
         {
-            creation_strategy = CreationStrategy.SingleInstance;
+            creation_strategy = CreationStrategy.SINGLE_INSTANCE;
             return this;
         }
 
-        public IRegistrationContext<T> Keyed<TService, TKey>(TKey key)
+        public IRegistrationContext<T> keyed<TService, TKey>(TKey key)
+            requires(typeof(T).is_a(typeof(TService)))
         {
             var t = typeof(TKey);
-            var keyValue = Value(t);
+            var key_value = Value(t);
             if(t.is_object())
-                keyValue.set_object((Object)key);
+                key_value.set_object((Object)key);
             if(t.is_enum())
-                keyValue.set_enum((int) key);
+                key_value.set_enum((int) key);
             if(t == typeof(string))
-                keyValue.set_string((string) key);
-            AddServiceRegistration(typeof(TService), keyValue);
+                key_value.set_string((string) key);
+            add_service_registration(typeof(TService), key_value);
             return this;
         }
 
-        public IRegistrationContext<T> AsDecorator<TService>()
+        public IRegistrationContext<T> as_decorator<TService>()
+            requires(typeof(T).is_a(typeof(TService)))
         {
             decorations.add(typeof(TService));
             return this;
         }
 
-        public abstract IRegistrationContext<T> IgnoreProperty(string property);
+        public abstract IRegistrationContext<T> ignore_property(string property);
 
-        private void AddServiceRegistration(Type service, Value? key = null)
+        private void add_service_registration(Type service, Value? key = null)
         {
-            var existingRegs = services.filter(s => s.ServiceType == service).chop(0, 1);
-            if(existingRegs.next())
+            var existing_regs = services.filter(s => s.service_type == service).chop(0, 1);
+            if(existing_regs.next())
             {
-                var reg = existingRegs.get();
+                var reg = existing_regs.get();
                 if(key == null)
                     return;
 
-                reg.Keys.add(key);
+                reg.keys.add(key);
                 return;
             }
 
-            var newReg = (ServiceRegistration) Object.new(typeof(ServiceRegistration), ServiceType: service, Keys: new LinkedList<Value?>());
+            var new_reg = (ServiceRegistration) Object.new(typeof(ServiceRegistration), service_type: service, keys: new LinkedList<Value?>());
             if(key != null)
-                newReg.Keys.add(key);
+                new_reg.keys.add(key);
 
-            services.add(newReg);
+            services.add(new_reg);
         }
     }
 
     internal class ServiceRegistration : Object
     {
-        public Type ServiceType {get; construct set;}
-        public Collection<Value?> Keys {get; construct; default = new LinkedList<Value?>();}
+        public Type service_type {get; construct set;}
+        public Collection<Value?> keys {get; construct; default = new LinkedList<Value?>();}
     }
 }

@@ -4,29 +4,29 @@ namespace Diva
 {
     internal enum CreationStrategy
     {
-        PerDependency,
-        SingleInstance;
+        PER_DEPENDENCY,
+        SINGLE_INSTANCE;
 
-        public ICreator<T> GetFinalCreator<T>(ICreator<T> creator)
+        public ICreator<T> get_final_creator<T>(ICreator<T> creator)
         {
             switch(this)
             {
-                case PerDependency:
+                case PER_DEPENDENCY:
                     return creator;
-                case SingleInstance:
+                case SINGLE_INSTANCE:
                     return new CachingCreator<T>(creator);
                 default:
                     assert_not_reached();
             }
         }
 
-        public IDecoratorCreator<T> GetFinalDecoratorCreator<T>(IDecoratorCreator<T> creator)
+        public IDecoratorCreator<T> get_final_decorator_creator<T>(IDecoratorCreator<T> creator)
         {
             switch(this)
             {
-                case PerDependency:
+                case PER_DEPENDENCY:
                     return creator;
-                case SingleInstance:
+                case SINGLE_INSTANCE:
                     return new CachingDecoratorCreator<T>(creator);
                 default:
                     assert_not_reached();
@@ -45,46 +45,46 @@ namespace Diva
             this.inner = inner;
         }
 
-        public T Create(ComponentContext context)
+        public T create(ComponentContext context)
             throws ResolveError
         {
             if(!has_value)
             {
-                cachedValue = inner.Create(context);
+                cachedValue = inner.create(context);
                 has_value = true;
             }
             return cachedValue;
         }
-        
-        public Lazy<T> CreateLazy(ComponentContext context)
+
+        public Lazy<T> create_lazy(ComponentContext context)
         {
             if(has_value)
                 return new Lazy<T>.from_value(cachedValue);
-            
-            return new Lazy<T>(() => {return Create(context);});
+
+            return new Lazy<T>(() => {return create(context);});
         }
     }
 
     internal class CachingDecoratorCreator<T> : Object, IDecoratorCreator<T>
     {
-        private T cachedValue;
+        private T cached_value;
         private bool has_value = false;
-        private IDecoratorCreator<T> innerCreator;
+        private IDecoratorCreator<T> inner_creator;
 
         public CachingDecoratorCreator(IDecoratorCreator<T> inner)
         {
-            innerCreator = inner;
+            inner_creator = inner;
         }
 
-        public T CreateDecorator(ComponentContext context, T inner)
+        public T create_decorator(ComponentContext context, T inner)
             throws ResolveError
         {
             if(!has_value)
             {
-                cachedValue = innerCreator.CreateDecorator(context, inner);
+                cached_value = inner_creator.create_decorator(context, inner);
                 has_value = true;
             }
-            return cachedValue;
+            return cached_value;
         }
     }
 }

@@ -20,13 +20,13 @@ namespace Diva.Tests
         private void ResolveDirectly()
         {
             var builder = new ContainerBuilder();
-            builder.Register<ServiceA>().Keyed<InterfaceA, ServiceEnum>(ServiceEnum.A);
-            builder.Register<ServiceB>().Keyed<InterfaceA, ServiceEnum>(ServiceEnum.B);
-            var container = builder.Build();
+            builder.register<ServiceA>().keyed<InterfaceA, ServiceEnum>(ServiceEnum.A);
+            builder.register<ServiceB>().keyed<InterfaceA, ServiceEnum>(ServiceEnum.B);
+            var container = builder.build();
 
             try
             {
-                var resolved = container.ResolveIndexed<InterfaceA, ServiceEnum>();
+                var resolved = container.resolve_indexed<InterfaceA, ServiceEnum>();
                 var a = resolved[ServiceEnum.A];
                 if(a == null)
                 {
@@ -46,13 +46,13 @@ namespace Diva.Tests
         private void ResolveAsComponent()
         {
             var builder = new ContainerBuilder();
-            builder.Register<ServiceA>().Keyed<InterfaceA, ServiceEnum>(ServiceEnum.A);
-            builder.Register<ServiceB>().Keyed<InterfaceA, ServiceEnum>(ServiceEnum.B);
-            builder.Register<RequiresIndex>();
-            var container = builder.Build();
+            builder.register<ServiceA>().keyed<InterfaceA, ServiceEnum>(ServiceEnum.A);
+            builder.register<ServiceB>().keyed<InterfaceA, ServiceEnum>(ServiceEnum.B);
+            builder.register<RequiresIndex>();
+            var container = builder.build();
 
             try {
-                var resolved = container.Resolve<RequiresIndex>();
+                var resolved = container.resolve<RequiresIndex>();
                 var a = resolved.Indexed[ServiceEnum.A];
                 if(a == null)
                     fail();
@@ -68,13 +68,13 @@ namespace Diva.Tests
         private void CanIndexOnStrings()
         {
             var builder = new ContainerBuilder();
-            builder.Register<ServiceA>().Keyed<InterfaceA, string>("A");
-            builder.Register<ServiceB>().Keyed<InterfaceA, string>("B");
-            var container = builder.Build();
+            builder.register<ServiceA>().keyed<InterfaceA, string>("A");
+            builder.register<ServiceB>().keyed<InterfaceA, string>("B");
+            var container = builder.build();
 
             try
             {
-                var resolved = container.ResolveIndexed<InterfaceA, string>();
+                var resolved = container.resolve_indexed<InterfaceA, string>();
                 var a = resolved["A"];
                 if(a == null)
                 {
@@ -94,13 +94,13 @@ namespace Diva.Tests
         private void CanIndexComponentsOnStrings()
         {
             var builder = new ContainerBuilder();
-            builder.Register<ServiceA>().Keyed<InterfaceA, string>("A");
-            builder.Register<ServiceB>().Keyed<InterfaceA, string>("B");
-            builder.Register<RequiresStringIndex>();
-            var container = builder.Build();
+            builder.register<ServiceA>().keyed<InterfaceA, string>("A");
+            builder.register<ServiceB>().keyed<InterfaceA, string>("B");
+            builder.register<RequiresStringIndex>();
+            var container = builder.build();
 
             try {
-                var resolved = container.Resolve<RequiresStringIndex>();
+                var resolved = container.resolve<RequiresStringIndex>();
                 var a = resolved.Indexed["A"];
                 if(a == null)
                     fail();
@@ -124,7 +124,7 @@ namespace Diva.Tests
             static construct
             {
                 var cls = (ObjectClass)typeof(RequiresIndex).class_ref();
-                SetIndexedInjection<ServiceEnum, InterfaceA>(cls, "Indexed");
+                set_indexed_injection<ServiceEnum, InterfaceA>(cls, "Indexed");
             }
 
             public Index<InterfaceA, ServiceEnum> Indexed {construct; get;}
@@ -135,7 +135,7 @@ namespace Diva.Tests
             static construct
             {
                 var cls = (ObjectClass)typeof(RequiresStringIndex).class_ref();
-                SetIndexedInjection<string, InterfaceA>(cls, "Indexed");
+                set_indexed_injection<string, InterfaceA>(cls, "Indexed");
             }
 
             public Index<InterfaceA, string> Indexed {construct; get;}

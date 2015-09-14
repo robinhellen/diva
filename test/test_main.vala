@@ -18,6 +18,7 @@ namespace Diva.Tests
         rootSuite.add_suite(new DecoratorTests().get_suite());
         rootSuite.add_suite(new CollectionTests().get_suite());
         rootSuite.add_suite(new ModuleTests().get_suite());
+        rootSuite.add_suite(new RegistrationErrors().get_suite());
 
         Test.run();
         return 0;
@@ -37,11 +38,11 @@ namespace Diva.Tests
         private void SimpleResolve()
         {
             var builder = new ContainerBuilder();
-            builder.Register<TestClass>(_ => new TestClass());
+            builder.register<TestClass>(_ => new TestClass());
 
-            var container = builder.Build();
+            var container = builder.build();
             try {
-            var testClass = container.Resolve<TestClass>();
+            var testClass = container.resolve<TestClass>();
             if(testClass == null)
                 fail();
             } catch (ResolveError e) {Test.message(@"ResolveError: $(e.message)"); fail(); }
@@ -50,11 +51,11 @@ namespace Diva.Tests
         private void ResolveTypeAuto()
         {
             var builder = new ContainerBuilder();
-            builder.Register<TestClass>();
+            builder.register<TestClass>();
 
-            var container = builder.Build();
+            var container = builder.build();
             try {
-            var testClass = container.Resolve<TestClass>();
+            var testClass = container.resolve<TestClass>();
             if(testClass == null)
                 fail();
             } catch (ResolveError e) {Test.message(@"ResolveError: $(e.message)"); fail(); }
@@ -63,12 +64,12 @@ namespace Diva.Tests
         private void ResolveTypeWithDependency()
         {
             var builder = new ContainerBuilder();
-            builder.Register<TestClass>();
-            builder.Register<TestClassWithDependencies>();
+            builder.register<TestClass>();
+            builder.register<TestClassWithDependencies>();
 
-            var container = builder.Build();
+            var container = builder.build();
             try {
-            var testClassWithDependencies = container.Resolve<TestClassWithDependencies>();
+            var testClassWithDependencies = container.resolve<TestClassWithDependencies>();
             if(testClassWithDependencies == null)
                 fail();
             if(testClassWithDependencies.Dependency == null)
@@ -79,11 +80,11 @@ namespace Diva.Tests
         private void ResolveByInterface()
         {
             var builder = new ContainerBuilder();
-            builder.Register<TestClass>().As<TestInterface>();
+            builder.register<TestClass>().as<TestInterface>();
 
-            var container = builder.Build();
+            var container = builder.build();
             try {
-            var testInterface = container.Resolve<TestInterface>();
+            var testInterface = container.resolve<TestInterface>();
             if(testInterface == null)
                 fail();
             } catch (ResolveError e) {Test.message(@"ResolveError: $(e.message)"); fail(); }

@@ -4,7 +4,7 @@ namespace Diva
 {
     internal class DelegateRegistrationContext<T> : IRegistrationContext<T>, Object
     {
-        private ResolveFunc<T> resolveFunc;
+        private ResolveFunc<T> resolve_func;
         private Collection<ServiceRegistration> _services = new LinkedList<ServiceRegistration>();
         private Collection<Type> _decorations = new LinkedList<Type>();
 
@@ -12,23 +12,23 @@ namespace Diva
 
         public DelegateRegistrationContext(owned ResolveFunc<T> resolver)
         {
-            resolveFunc = (owned) resolver;
+            resolve_func = (owned) resolver;
         }
 
         internal Collection<ServiceRegistration> services {get{return _services;}}
         internal Collection<Type> decorations {get{return _decorations;}}
 
-        public ICreator<T> GetCreator()
+        public ICreator<T> get_creator()
         {
-            return creation_strategy.GetFinalCreator<T>(new DelegateCreator<T>(this));
+            return creation_strategy.get_final_creator<T>(new DelegateCreator<T>(this));
         }
-               
-        public IDecoratorCreator<T> GetDecoratorCreator()
+
+        public IDecoratorCreator<T> get_decorator_creator()
         {
-            return creation_strategy.GetFinalDecoratorCreator<T>(new DelegateCreator<T>(this));
+            return creation_strategy.get_final_decorator_creator<T>(new DelegateCreator<T>(this));
         }
-        
-        public IRegistrationContext<T> IgnoreProperty(string property)
+
+        public IRegistrationContext<T> ignore_property(string property)
         {
             return this;
         }
@@ -41,30 +41,30 @@ namespace Diva
             {
                 this.registration = registration;
             }
-            
-            public T CreateDecorator(ComponentContext context, T inner)
+
+            public T create_decorator(ComponentContext context, T inner)
                 throws ResolveError
             {
-                return Create(context);
+                return create(context);
             }
 
-            public T Create(ComponentContext context)
+            public T create(ComponentContext context)
                 throws ResolveError
             {
                 try
                 {
-                    return registration.resolveFunc(context);
+                    return registration.resolve_func(context);
                 }
                 catch(ResolveError e)
                 {
                     throw new ResolveError.InnerError(@"Unable to create $(typeof(T).name()): $(e.message)");
                 }
             }
-            
-            public Lazy<T> CreateLazy(ComponentContext context)
+
+            public Lazy<T> create_lazy(ComponentContext context)
                 throws ResolveError
             {
-                return new Lazy<T>(() => {return Create(context);});
+                return new Lazy<T>(() => {return create(context);});
             }
         }
     }

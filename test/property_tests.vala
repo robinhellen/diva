@@ -16,17 +16,17 @@ namespace Diva.Tests
         private void IgnoredProperty()
         {
             var builder = new ContainerBuilder();
-            builder.Register<TestClass>()
-                    .IgnoreProperty("ignore-this");
+            builder.register<TestClass>()
+                    .ignore_property("ignore-this");
 
-            var container = builder.Build();
+            var container = builder.build();
             try {
-            var testClass = container.Resolve<TestClass>();
+            var testClass = container.resolve<TestClass>();
             if(testClass == null)
                 fail();
             } catch (ResolveError e) {Test.message(@"ResolveError: $(e.message)"); fail(); }
         }
-        
+
         private class TestClass : Object
         {
             public int ignore_this {get; construct;}
