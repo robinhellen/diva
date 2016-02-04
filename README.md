@@ -13,15 +13,15 @@ Components that provide services are registered with a ```ContainerBuilder```
     var builder = new ContainerBuilder();
 Diva can use a delegate, a type, or an exising instance:
 
-    builder.Register<FooService>(ctx => new FooComponent());
-    builder.Register<FooComponent>().as<FooService>();
-    builder.RegisterInstance<FooService>(new FooComponent());
+    builder.register<FooService>(ctx => new FooComponent());
+    builder.register<FooComponent>().as<FooService>();
+    builder.registerInstance<FooService>(new FooComponent());
 calling ```Build()``` creates a container
 
-    var container = builder.Build();
-instances of a service can then be requested using Resolve<T>()
+    var container = builder.build();
+instances of a service can then be requested using resolve<T>()
 
-    var fooService = container.Resolve<FooService>();
+    var fooService = container.resolve<FooService>();
 
 #### Expressing dependencies
 
@@ -32,4 +32,4 @@ Dependencies are expressed as public properties of the component
         public BarService bar { construct; private get; }
     }
 When constructing a FooComponent, Diva will look for a component that provides BarService and
-set the property bar to it.
+set the property bar to a new instance of it.
