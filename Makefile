@@ -44,5 +44,11 @@ clean:
 
 PREFIX ?= /usr/local
 
-install: $(LIBRARY_NAME).so
-	
+
+install: $(LIBRARY_FILENAME)
+	cp $(LIBRARY_FILENAME) $(PREFIX)/lib/$(LIBRARY_FILENAME)
+	ldconfig
+	mkdir -p $(PREFIX)/share/vala/vapi
+	cp $(LIBRARY_NAME).vapi $(PREFIX)/share/vala/vapi/
+	mkdir -p $(PREFIX)/include
+	cp $(LIBRARY_NAME).h $(PREFIX)/include
