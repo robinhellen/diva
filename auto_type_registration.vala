@@ -13,12 +13,12 @@ namespace Diva
 
         private Collection<string> ignored_properties = new ArrayList<string>();
 
-        public ICreator<T> get_creator()
+        public ICreator get_creator()
         {
             return creation_strategy.get_final_creator<T>(new AutoTypeCreator<T>(this, ignored_properties));
         }
 
-        public IDecoratorCreator<T> get_decorator_creator()
+        public IDecoratorCreator get_decorator_creator()
         {
             return creation_strategy.get_final_decorator_creator<T>(new AutoTypeCreator<T>(this, ignored_properties));
         }
