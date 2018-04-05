@@ -18,12 +18,12 @@ namespace Diva
         internal Collection<ServiceRegistration> services {get{return _services;}}
         internal Collection<Type> decorations {get{return _decorations;}}
 
-        public ICreator<T> get_creator()
+        public ICreator get_creator()
         {
             return creation_strategy.get_final_creator<T>(new DelegateCreator<T>(this));
         }
 
-        public IDecoratorCreator<T> get_decorator_creator()
+        public IDecoratorCreator get_decorator_creator()
         {
             return creation_strategy.get_final_decorator_creator<T>(new DelegateCreator<T>(this));
         }
